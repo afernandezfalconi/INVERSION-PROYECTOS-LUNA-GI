@@ -1,0 +1,3666 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora de Inversión Inmobiliaria</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #000000;
+    --cream: #eef3f8;
+    --gold: #134289;
+    --gold-light: #ccd7e5;
+    --rust: #c0392b;
+    --sage: #007bbb;
+    --paper: #f4f7fb;
+    --card: #ffffff;
+    --border: #ccd7e5;
+    --muted: #4a6080;
+    --danger: #c0392b;
+    --success: #007bbb;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--ink);
+    color: var(--cream);
+    padding: 28px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    border-bottom: 3px solid var(--gold);
+  }
+  .logo { display: flex; align-items: baseline; gap: 12px; }
+  .logo-main {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    color: var(--gold);
+  }
+  .logo-sub { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: #888; }
+  .header-actions { display: flex; gap: 12px; }
+  .btn-outline {
+    border: 1px solid #ffffff;
+    color: #ffffff;
+    background: transparent;
+    padding: 8px 20px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-outline:hover { background: #ffffff; color: var(--ink); }
+
+  /* LAYOUT */
+  .app-layout {
+    display: flex;
+    min-height: calc(100vh - 73px);
+  }
+
+  /* SIDEBAR NAV */
+  .sidebar {
+    width: 240px;
+    background: var(--paper);
+    border-right: 1px solid var(--border);
+    padding: 24px 0;
+    position: sticky;
+    top: 73px;
+    height: calc(100vh - 73px);
+    overflow-y: auto;
+    flex-shrink: 0;
+  }
+  .sidebar-section-label {
+    font-size: 9px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 16px 24px 8px;
+    font-weight: 600;
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 24px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--muted);
+    transition: all 0.15s;
+    border-left: 3px solid transparent;
+  }
+  .nav-item:hover { background: var(--cream); color: var(--ink); }
+  .nav-item.active { background: var(--cream); color: var(--ink); border-left-color: var(--gold); font-weight: 600; }
+  .nav-icon { font-size: 16px; width: 20px; text-align: center; }
+  .nav-badge {
+    margin-left: auto;
+    background: var(--gold);
+    color: var(--ink);
+    font-size: 9px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 2px;
+  }
+  .nav-badge.done { background: var(--sage); color: white; }
+  .nav-badge.warn { background: var(--rust); color: white; }
+
+  /* MAIN CONTENT */
+  .main-content {
+    flex: 1;
+    padding: 40px 48px;
+    max-width: 960px;
+  }
+
+  /* SECTION HEADER */
+  .section-header {
+    margin-bottom: 32px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-tag {
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.2;
+  }
+  .section-desc {
+    font-size: 14px;
+    color: var(--muted);
+    margin-top: 8px;
+    line-height: 1.6;
+  }
+
+  /* CARDS */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 28px;
+    margin-bottom: 24px;
+  }
+  .card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .card-title .ct-icon { font-size: 18px; }
+
+  /* FORM */
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .form-grid.three { grid-template-columns: 1fr 1fr 1fr; }
+  .form-grid.full { grid-template-columns: 1fr; }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-group.span2 { grid-column: span 2; }
+  .form-group.span3 { grid-column: span 3; }
+  label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .required::after { content: ' *'; color: var(--rust); }
+  input, select, textarea {
+    border: 1px solid var(--border);
+    background: var(--paper);
+    padding: 10px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--ink);
+    border-radius: 3px;
+    transition: border 0.15s;
+    width: 100%;
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--gold);
+    background: white;
+  }
+  .prefix-input { position: relative; }
+  .prefix-input .prefix {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 13px;
+    color: var(--muted);
+    font-weight: 600;
+    pointer-events: none;
+  }
+  .prefix-input input { padding-left: 28px; }
+
+  /* STATUS PILLS */
+  .status-group { display: flex; gap: 8px; flex-wrap: wrap; }
+  .status-pill {
+    padding: 6px 14px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-transform: uppercase;
+    color: var(--ink);
+  }
+  .status-pill:hover { border-color: var(--gold); color: var(--gold); }
+  .status-pill.selected { background: var(--gold); border-color: var(--gold); color: #ffffff; }
+  .status-pill.selected.red { background: var(--rust); border-color: var(--rust); color: #ffffff; }
+  .status-pill.selected.green { background: var(--sage); border-color: var(--sage); color: #ffffff; }
+
+  /* LOTES TABLE */
+  .lotes-table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th {
+    background: #134289;
+    color: #ffffff;
+    padding: 10px 12px;
+    text-align: left;
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+  td {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+  tr:hover td { background: var(--cream); }
+  td input, td select {
+    padding: 5px 8px;
+    font-size: 12px;
+    border-radius: 2px;
+    width: 100%;
+  }
+    .lote-status { padding: 3px 8px; border-radius: 2px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+  .ls-disponible { background: #dbeeff; color: #134289; }
+  .ls-vendido { background: #fce4ec; color: #c0392b; }
+  .ls-apartado { background: #e8f4fb; color: #007bbb; }
+  .ls-bloqueado { background: #eeeeee; color: #616161; }
+
+  .btn-add {
+    background: transparent;
+    border: 1px dashed var(--gold);
+    color: var(--gold);
+    padding: 10px 20px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 12px;
+    width: 100%;
+    border-radius: 3px;
+    transition: all 0.15s;
+  }
+  .btn-add:hover { background: var(--gold); color: var(--ink); }
+  .btn-del {
+    background: transparent;
+    border: none;
+    color: var(--rust);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 2px 6px;
+    border-radius: 2px;
+  }
+  .btn-del:hover { background: #fce4ec; }
+
+  /* ETAPAS */
+  .etapa-card {
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 20px;
+    margin-bottom: 16px;
+    position: relative;
+  }
+  .etapa-card:has(.etapa-num-1) { border-left: 4px solid #007bbb; }
+  .etapa-card:has(.etapa-num-2) { border-left: 4px solid #134289; }
+  .etapa-card:has(.etapa-num-3) { border-left: 4px solid #007bbb; }
+  .etapa-card:has(.etapa-num-4) { border-left: 4px solid #134289; }
+  .etapa-card:has(.etapa-num-5) { border-left: 4px solid #000000; }
+  .etapa-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+  .etapa-num {
+    width: 36px; height: 36px;
+    background: #134289;
+    color: #ffffff;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    font-weight: 900;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+  .etapa-name { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; }
+
+  /* COSTOS */
+  .costo-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr 100px;
+    gap: 10px;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .costo-row:last-child { border-bottom: none; }
+  .costo-label { font-size: 13px; font-weight: 500; }
+  .costo-category-header {
+    background: #134289;
+    color: #ffffff;
+    padding: 8px 12px;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-weight: 600;
+    margin: 16px -28px;
+    padding: 8px 28px;
+  }
+
+  /* TABS */
+  .tabs { display: flex; gap: 0; margin-bottom: 28px; border-bottom: 2px solid var(--border); }
+  .tab {
+    padding: 10px 20px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    color: var(--muted);
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.15s;
+  }
+  .tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+  .tab:hover { color: var(--ink); }
+
+  /* PAGE VISIBILITY */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* REPORT */
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  .metric-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 20px;
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+  }
+  .metric-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--gold);
+  }
+  .metric-card.green::before { background: var(--sage); }
+  .metric-card.red::before { background: var(--rust); }
+  .metric-card.blue::before { background: #134289; }
+  .metric-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); font-weight: 600; margin-bottom: 8px; }
+  .metric-value { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 700; line-height: 1; margin-bottom: 4px; }
+  .metric-sub { font-size: 12px; color: var(--muted); }
+
+  .report-section {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    margin-bottom: 24px;
+    overflow: hidden;
+  }
+  .report-section-header {
+    background: #134289;
+    color: #ffffff;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .report-section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: #ffffff;
+  }
+  .report-section-body { padding: 20px 24px; }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .stat-row:last-child { border-bottom: none; }
+  .stat-name { color: var(--muted); }
+  .stat-val { font-weight: 600; }
+  .stat-val.pos { color: var(--sage); }
+  .stat-val.neg { color: var(--rust); }
+  .stat-val.gold { color: var(--gold); }
+
+  /* PROGRESS BAR */
+  .progress-bar {
+    height: 8px;
+    background: var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 6px;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--gold);
+    border-radius: 4px;
+    transition: width 0.5s ease;
+  }
+  .progress-fill.green { background: var(--sage); }
+  .progress-fill.red { background: var(--rust); }
+
+  /* ALERT */
+  .alert {
+    padding: 12px 16px;
+    border-radius: 3px;
+    font-size: 13px;
+    margin-bottom: 12px;
+    border-left: 4px solid;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .alert.warning { background: #e8f4fb; border-color: #007bbb; color: #134289; }
+  .alert.danger { background: #fce4ec; border-color: var(--rust); color: #8b1a1a; }
+  .alert.success { background: #dbeeff; border-color: #134289; color: #0a2a5e; }
+  .alert-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+
+  /* ETAPAS TABLE */
+  .etapas-report-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .etapas-report-table th {
+    background: #eef3f8;
+    color: var(--muted);
+    padding: 8px 12px;
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    text-align: right;
+  }
+  .etapas-report-table th:first-child { text-align: left; }
+  .etapas-report-table td {
+    padding: 10px 12px;
+    text-align: right;
+    border-bottom: 1px solid var(--border);
+  }
+  .etapas-report-table td:first-child { text-align: left; font-weight: 600; }
+  .etapas-report-table tr.total-row td {
+    background: #134289;
+    color: #ffffff;
+    font-weight: 700;
+    font-family: 'Playfair Display', serif;
+    border-bottom: none;
+  }
+
+  /* GENERAL BTN */
+  .btn-primary {
+    background: var(--gold);
+    color: #ffffff;
+    border: none;
+    padding: 12px 28px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: all 0.2s;
+  }
+  .btn-primary:hover { background: #0d3070; }
+  .btn-ghost {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    padding: 10px 20px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: all 0.15s;
+  }
+  .btn-ghost:hover { border-color: var(--ink); color: var(--ink); }
+  .action-row { display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; }
+
+  /* TOOLTIP */
+  .tooltip {
+    display: inline-block;
+    width: 16px; height: 16px;
+    background: var(--border);
+    border-radius: 50%;
+    font-size: 10px;
+    text-align: center;
+    line-height: 16px;
+    cursor: help;
+    color: var(--muted);
+    font-weight: 700;
+    margin-left: 4px;
+    vertical-align: middle;
+  }
+
+  /* DIVIDER */
+  .divider { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
+
+  /* HELPER TEXT */
+  .helper { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+  /* PRINT */
+  @media print {
+    .sidebar, header, .action-row, .btn-primary, .btn-ghost, .btn-add { display: none !important; }
+    .main-content { max-width: 100%; padding: 20px; }
+    .app-layout { display: block; }
+    body { background: white; }
+  }
+
+  /* PROJECT SELECTOR */
+  .project-selector-wrap { position: relative; }
+  .project-selector-btn { display: flex; align-items: center; gap: 6px; }
+  .project-dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    min-width: 260px;
+    background: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    z-index: 999;
+    overflow: hidden;
+  }
+  .project-dropdown-label {
+    font-size: 9px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 12px 16px 6px;
+    font-weight: 700;
+  }
+  .project-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    cursor: pointer;
+    transition: background 0.12s;
+    border-left: 3px solid transparent;
+  }
+  .project-dropdown-item:hover { background: var(--cream); }
+  .project-dropdown-item.active { border-left-color: #134289; background: #eef3f8; }
+  .project-dropdown-item.new-project {
+    color: #134289;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+  }
+  .project-dropdown-item.new-project:hover { background: #eef3f8; }
+  .project-dropdown-divider { border-top: 1px solid var(--border); margin: 4px 0; }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    z-index: 1000;
+    backdrop-filter: blur(2px);
+  }
+  .modal {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1001;
+    width: min(780px, 96vw);
+    max-height: 88vh;
+    background: #ffffff;
+    border-radius: 6px;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  }
+  .modal-header {
+    background: #134289;
+    color: #ffffff;
+    padding: 20px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .modal-tag {
+    font-size: 9px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.6);
+    margin-bottom: 4px;
+  }
+  .modal-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: #ffffff;
+  }
+  .modal-close {
+    background: rgba(255,255,255,0.15);
+    border: none;
+    color: #ffffff;
+    width: 32px; height: 32px;
+    border-radius: 3px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .modal-close:hover { background: rgba(255,255,255,0.3); }
+  .modal-body {
+    overflow-y: auto;
+    padding: 24px 28px;
+    flex: 1;
+  }
+  .modal-footer {
+    border-top: 1px solid var(--border);
+    padding: 16px 28px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    flex-shrink: 0;
+    background: var(--paper);
+  }
+  .modal-section-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #134289;
+    margin: 20px 0 12px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid #ccd7e5;
+  }
+  .modal-section-title:first-child { margin-top: 0; }
+  .modal-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 4px;
+  }
+  .modal-grid.four { grid-template-columns: 1fr 1fr 1fr 1fr; }
+  .modal-field { display: flex; flex-direction: column; gap: 5px; }
+  .modal-field.span2 { grid-column: span 2; }
+  .modal-field label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .modal-field .req { color: var(--rust); }
+  .modal-prefix { position: relative; }
+  .modal-prefix span {
+    position: absolute;
+    left: 10px; top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 600;
+    pointer-events: none;
+  }
+  .modal-prefix input { padding-left: 26px; }
+  .modal-hint {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 10px;
+    line-height: 1.5;
+  }
+
+  /* FLUJO DE CAJA */
+  .flujo-table { width:100%; border-collapse:collapse; font-size:12px; }
+  .flujo-table th { background:#134289; color:#fff; padding:8px 10px; text-align:right; font-size:10px; letter-spacing:1px; text-transform:uppercase; }
+  .flujo-table th:first-child { text-align:left; }
+  .flujo-table td { padding:7px 10px; border-bottom:1px solid var(--border); text-align:right; }
+  .flujo-table td:first-child { text-align:left; font-weight:600; white-space:nowrap; }
+  .flujo-table tr.flujo-positivo td { background:#dbeeff; }
+  .flujo-table tr.flujo-negativo td { background:#fce4ec; }
+  .flujo-table tr.flujo-break td { background:#134289; color:#fff; font-weight:700; }
+  .flujo-kpi { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:20px; }
+  .flujo-kpi-card { background:#fff; border:1px solid var(--border); border-radius:4px; padding:16px; border-top:3px solid #134289; }
+  .flujo-kpi-label { font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-bottom:6px; }
+  .flujo-kpi-val { font-size:22px; font-weight:700; font-family:'Playfair Display',serif; }
+
+  /* SEMAFORO */
+  .sem { display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:6px; }
+  .sem-verde { background:#007bbb; }
+  .sem-amarillo { background:#f0b429; }
+  .sem-rojo { background:#c0392b; }
+  .cobranza-row { display:grid; grid-template-columns:80px 1fr 100px 110px 110px 110px 90px; gap:8px; align-items:center; padding:10px 0; border-bottom:1px solid var(--border); font-size:13px; }
+  .cobranza-header { font-size:10px; text-transform:uppercase; letter-spacing:1px; color:var(--muted); font-weight:700; padding-bottom:8px; border-bottom:2px solid var(--border); }
+
+  /* EQUILIBRIO */
+  .eq-bar-wrap { margin:8px 0 16px; }
+  .eq-bar-label { display:flex; justify-content:space-between; font-size:12px; margin-bottom:4px; }
+  .eq-bar { height:28px; background:var(--border); border-radius:3px; overflow:hidden; position:relative; }
+  .eq-bar-fill { height:100%; display:flex; align-items:center; padding-left:10px; font-size:11px; font-weight:700; color:#fff; transition:width 0.6s ease; }
+  .eq-bar-marker { position:absolute; top:0; bottom:0; width:2px; background:#c0392b; }
+
+  /* COMISIONES */
+  .comi-table { width:100%; border-collapse:collapse; font-size:13px; }
+  .comi-table th { background:#134289; color:#fff; padding:8px 12px; text-align:right; font-size:10px; letter-spacing:1px; text-transform:uppercase; }
+  .comi-table th:first-child { text-align:left; }
+  .comi-table td { padding:9px 12px; border-bottom:1px solid var(--border); text-align:right; }
+  .comi-table td:first-child { text-align:left; }
+  .comi-table tr.comi-total td { background:#eef3f8; font-weight:700; }
+
+  /* OBRA */
+  .obra-sem { display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:700; }
+  .obra-progress { height:8px; background:var(--border); border-radius:4px; overflow:hidden; }
+  .obra-progress-fill { height:100%; border-radius:4px; }
+
+  /* HISTORIAL */
+  .hist-row { display:grid; grid-template-columns:130px 100px 100px 100px 1fr 100px; gap:10px; align-items:center; padding:10px 0; border-bottom:1px solid var(--border); font-size:13px; }
+  .hist-header { font-size:10px; text-transform:uppercase; letter-spacing:1px; color:var(--muted); font-weight:700; padding-bottom:8px; }
+
+  /* COMPARATIVO */
+  .comp-table { width:100%; border-collapse:collapse; font-size:13px; }
+  .comp-table th { background:#134289; color:#fff; padding:10px 14px; text-align:right; font-size:11px; }
+  .comp-table th:first-child { text-align:left; }
+  .comp-table td { padding:10px 14px; border-bottom:1px solid var(--border); text-align:right; }
+  .comp-table td:first-child { text-align:left; font-weight:600; color:var(--muted); }
+  .comp-table tr:hover td { background:var(--cream); }
+
+  /* QR FICHA */
+  .ficha-preview { max-width:420px; background:#fff; border:2px solid #134289; border-radius:6px; overflow:hidden; margin:0 auto; }
+  .ficha-header { background:#134289; color:#fff; padding:18px 20px; }
+  .ficha-body { padding:18px 20px; }
+  .ficha-row { display:flex; justify-content:space-between; padding:7px 0; border-bottom:1px solid #eef3f8; font-size:13px; }
+  .ficha-price-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin:14px 0; }
+  .ficha-price-box { background:#eef3f8; border-radius:4px; padding:10px; text-align:center; }
+  .ficha-price-label { font-size:9px; text-transform:uppercase; letter-spacing:1px; color:var(--muted); }
+  .ficha-price-val { font-size:16px; font-weight:700; color:#134289; margin-top:4px; }
+
+  /* PDF MODAL */
+  .pdf-modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:2000; backdrop-filter:blur(2px); }
+  .pdf-modal { display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:#fff; border-radius:6px; width:480px; z-index:2001; overflow:hidden; box-shadow:0 20px 60px rgba(0,0,0,0.3); }
+  .pdf-modal-head { background:#134289; color:#fff; padding:20px 24px; display:flex; justify-content:space-between; align-items:center; }
+  .pdf-modal-body { padding:24px; }
+  .pdf-opt { display:flex; align-items:center; gap:12px; padding:12px 0; border-bottom:1px solid var(--border); cursor:pointer; }
+  .pdf-opt:last-child { border-bottom:none; }
+  .pdf-opt-icon { font-size:24px; width:36px; text-align:center; flex-shrink:0; }
+  .pdf-opt-label { font-weight:600; font-size:14px; }
+  .pdf-opt-sub { font-size:12px; color:var(--muted); margin-top:2px; }
+  .pdf-toggle { display:flex; align-items:center; gap:10px; padding:14px 0; }
+  .toggle-switch { position:relative; width:42px; height:24px; flex-shrink:0; }
+  .toggle-switch input { opacity:0; width:0; height:0; }
+  .toggle-slider { position:absolute; inset:0; background:#ccd7e5; border-radius:12px; cursor:pointer; transition:0.3s; }
+  .toggle-slider::before { content:''; position:absolute; width:18px; height:18px; left:3px; bottom:3px; background:#fff; border-radius:50%; transition:0.3s; }
+  .toggle-switch input:checked + .toggle-slider { background:#134289; }
+  .toggle-switch input:checked + .toggle-slider::before { transform:translateX(18px); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <span class="logo-main">LUNA GI</span>
+    <span class="logo-sub" id="header-project-name">ALURA — Calculadora Inmobiliaria</span>
+  </div>
+  <div class="header-actions">
+    <!-- PROJECT SELECTOR -->
+    <div class="project-selector-wrap">
+      <button class="btn-outline project-selector-btn" onclick="toggleProjectMenu(event)">
+        🏘️ <span id="project-selector-label">ALURA</span> ▾
+      </button>
+      <div class="project-dropdown" id="project-dropdown">
+        <div class="project-dropdown-label">MIS PROYECTOS</div>
+        <div id="project-list"></div>
+        <div class="project-dropdown-divider"></div>
+        <div class="project-dropdown-item new-project" onclick="openNewProjectModal()">
+          <span style="font-size:18px;">＋</span>
+          <span>Agregar Proyecto</span>
+        </div>
+      </div>
+    </div>
+    <button class="btn-outline" onclick="generateReport(); showPage('reporte')">📊 Generar Reporte</button>
+    <button class="btn-outline" onclick="openPdfModal()">📄 Exportar PDF</button>
+  </div>
+</header>
+
+<div class="app-layout">
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="sidebar-section-label">Captura de Datos</div>
+    <div class="nav-item active" onclick="showPage('general')">
+      <span class="nav-icon">🏗️</span> General del Proyecto
+    </div>
+    <div class="nav-item" onclick="showPage('inventario')">
+      <span class="nav-icon">📋</span> Inventario de Lotes
+    </div>
+    <div class="nav-item" onclick="showPage('etapas')">
+      <span class="nav-icon">🔢</span> Etapas Comerciales
+    </div>
+    <div class="nav-item" onclick="showPage('costos')">
+      <span class="nav-icon">💰</span> Costos del Proyecto
+    </div>
+    <div class="nav-item" onclick="showPage('ventas')">
+      <span class="nav-icon">📝</span> Ventas Realizadas
+    </div>
+    <div class="nav-item" onclick="showPage('comercial')">
+      <span class="nav-icon">📈</span> Política Comercial
+    </div>
+    <div class="nav-item" onclick="showPage('legal')">
+      <span class="nav-icon">⚖️</span> Legal y Permisos
+    </div>
+    <div class="sidebar-section-label" style="margin-top:8px;">Herramientas</div>
+    <div class="nav-item" onclick="showPage('obra')">
+      <span class="nav-icon">🏗️</span> Avance de Obra
+    </div>
+    <div class="nav-item" onclick="showPage('historial')">
+      <span class="nav-icon">📜</span> Historial de Precios
+    </div>
+    <div class="sidebar-section-label" style="margin-top:8px;">Análisis</div>
+    <div class="nav-item" onclick="generateReport(); showPage('reporte')">
+      <span class="nav-icon">📊</span> Dashboard Financiero
+    </div>
+    <div class="nav-item" onclick="buildFlujoCaja(); showPage('flujo')">
+      <span class="nav-icon">📅</span> Flujo de Caja
+    </div>
+    <div class="nav-item" onclick="buildSimulador(); showPage('simulador')">
+      <span class="nav-icon">🔬</span> Simulador de Escenarios
+    </div>
+    <div class="nav-item" onclick="buildCobranza(); showPage('cobranza')">
+      <span class="nav-icon">🔴</span> Cobranza Activa
+    </div>
+    <div class="nav-item" onclick="buildEquilibrio(); showPage('equilibrio')">
+      <span class="nav-icon">⚖️</span> Punto de Equilibrio
+    </div>
+    <div class="nav-item" onclick="buildComisiones(); showPage('comisiones')">
+      <span class="nav-icon">💼</span> Comisiones
+    </div>
+    <div class="sidebar-section-label" style="margin-top:8px;">Exportar</div>
+    <div class="nav-item" onclick="buildComparativo(); showPage('comparativo')">
+      <span class="nav-icon">📐</span> Comparativo Proyectos
+    </div>
+    <div class="nav-item" onclick="exportExcel()">
+      <span class="nav-icon">📗</span> Exportar Excel
+    </div>
+    <div class="nav-item" onclick="buildQRSelector(); showPage('qrlote')">
+      <span class="nav-icon">📱</span> QR por Lote
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="main-content">
+
+    <!-- PAGE: GENERAL -->
+    <div class="page active" id="page-general">
+      <div class="section-header">
+        <div class="section-tag">Paso 1 de 7</div>
+        <div class="section-title">Identidad del Proyecto</div>
+        <div class="section-desc">Datos generales, ubicación y metas del desarrollo.</div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="ct-icon">🏗️</span> Información General</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="required">Nombre del Proyecto</label>
+            <input type="text" id="g-nombre" placeholder="ej. ALURA" oninput="updateHeaderProject()">
+          </div>
+          <div class="form-group">
+            <label>Tipo de Proyecto</label>
+            <select id="g-tipo">
+              <option value="">Seleccionar...</option>
+              <option>Fraccionamiento</option>
+              <option>Privada</option>
+              <option>Condominio</option>
+              <option>Comercial</option>
+              <option>Mixto</option>
+              <option>Industrial</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Municipio</label>
+            <input type="text" id="g-municipio" placeholder="ej. Puerto Escondido">
+          </div>
+          <div class="form-group">
+            <label>Estado</label>
+            <input type="text" id="g-estado" placeholder="ej. Oaxaca">
+          </div>
+          <div class="form-group">
+            <label class="required">Total de Lotes / Unidades</label>
+            <input type="number" id="g-total-lotes" placeholder="42" min="1">
+          </div>
+          <div class="form-group">
+            <label>Lotes ya Vendidos</label>
+            <input type="number" id="g-vendidos" placeholder="6" min="0">
+          </div>
+          <div class="form-group">
+            <label>Superficie Total del Predio (m²)</label>
+            <input type="number" id="g-sup-total" placeholder="ej. 10000">
+          </div>
+          <div class="form-group">
+            <label>Superficie Vendible (m²)</label>
+            <input type="number" id="g-sup-vendible" placeholder="ej. 8400">
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="ct-icon">🎯</span> Objetivo y Estrategia</div>
+        <div class="form-grid">
+          <div class="form-group span2">
+            <label>Objetivo Principal del Proyecto</label>
+            <div class="status-group" id="objetivo-group">
+              <div class="status-pill" onclick="togglePill(this, 'objetivo-group')">Maximizar Utilidad</div>
+              <div class="status-pill" onclick="togglePill(this, 'objetivo-group')">Flujo Rápido</div>
+              <div class="status-pill" onclick="togglePill(this, 'objetivo-group')">Prestigio de Marca</div>
+              <div class="status-pill" onclick="togglePill(this, 'objetivo-group')">Posicionamiento</div>
+              <div class="status-pill" onclick="togglePill(this, 'objetivo-group')">Rotación</div>
+              <div class="status-pill" onclick="togglePill(this, 'objetivo-group')">Patrimonio</div>
+            </div>
+          </div>
+          <div class="form-group span2">
+            <label>Notas Estratégicas</label>
+            <textarea id="g-notas" rows="3" placeholder="Describe la visión del proyecto, posicionamiento de marca, etc."></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="ct-icon">📅</span> Fechas Clave</div>
+        <div class="form-grid three">
+          <div class="form-group">
+            <label>Inicio del Proyecto</label>
+            <input type="date" id="g-fecha-inicio">
+          </div>
+          <div class="form-group">
+            <label>Lanzamiento Comercial</label>
+            <input type="date" id="g-fecha-lanz">
+          </div>
+          <div class="form-group">
+            <label>Evento de Apertura</label>
+            <input type="date" id="g-fecha-evento">
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="ct-icon">📊</span> Metas Financieras Generales</div>
+        <div class="form-grid three">
+          <div class="form-group">
+            <label>Ingreso Bruto Estimado</label>
+            <div class="prefix-input"><span class="prefix">$</span><input type="number" id="g-ingreso" placeholder="28000000"></div>
+          </div>
+          <div class="form-group">
+            <label>Gasto Total Estimado</label>
+            <div class="prefix-input"><span class="prefix">$</span><input type="number" id="g-gasto" placeholder="18000000"></div>
+          </div>
+          <div class="form-group">
+            <label>Utilidad Esperada</label>
+            <div class="prefix-input"><span class="prefix">$</span><input type="number" id="g-utilidad" placeholder="10000000"></div>
+          </div>
+          <div class="form-group">
+            <label>Meta de Ventas 2026 (lotes)</label>
+            <input type="number" id="g-meta-lotes" placeholder="ej. 20">
+          </div>
+          <div class="form-group">
+            <label>Meta Mensual Ideal (lotes)</label>
+            <input type="number" id="g-meta-mes" placeholder="ej. 3">
+          </div>
+          <div class="form-group">
+            <label>Meta Mensual Mínima (lotes)</label>
+            <input type="number" id="g-meta-min" placeholder="ej. 1">
+          </div>
+        </div>
+      </div>
+      <div class="action-row">
+        <button class="btn-primary" onclick="showPage('inventario')">Siguiente: Inventario →</button>
+      </div>
+    </div>
+
+    <!-- PAGE: INVENTARIO -->
+    <div class="page" id="page-inventario">
+      <div class="section-header">
+        <div class="section-tag">Paso 2 de 7</div>
+        <div class="section-title">Inventario de Lotes</div>
+        <div class="section-desc">Registra cada lote con sus características y estatus actual.</div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="ct-icon">📋</span> Tabla de Inventario</div>
+        <div class="lotes-table-wrap">
+          <table id="lotes-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Lote</th>
+                <th>Manzana</th>
+                <th>m²</th>
+                <th>Frente</th>
+                <th>Fondo</th>
+                <th>Ubicación Especial</th>
+                <th>Etapa Comercial</th>
+                <th>Estatus</th>
+                <th>Precio Lista</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="lotes-body">
+            </tbody>
+          </table>
+        </div>
+        <button class="btn-add" onclick="addLote()">+ Agregar Lote</button>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="ct-icon">⚡</span> Carga Rápida</div>
+        <div class="section-desc" style="margin-bottom:16px;">Genera lotes en bloque con parámetros uniformes.</div>
+        <div class="form-grid three">
+          <div class="form-group">
+            <label>Número de Lotes a Generar</label>
+            <input type="number" id="bulk-count" placeholder="10" min="1">
+          </div>
+          <div class="form-group">
+            <label>m² por Lote</label>
+            <input type="number" id="bulk-m2" placeholder="200">
+          </div>
+          <div class="form-group">
+            <label>Etapa Comercial</label>
+            <select id="bulk-etapa">
+              <option value="">Seleccionar...</option>
+              <option value="2">Etapa 2</option>
+              <option value="3">Etapa 3</option>
+              <option value="4">Etapa 4</option>
+              <option value="5">Etapa 5</option>
+            </select>
+          </div>
+        </div>
+        <div class="action-row" style="margin-top:12px;">
+          <button class="btn-ghost" onclick="bulkAddLotes()">Generar Lotes en Bloque</button>
+        </div>
+      </div>
+      <div class="action-row">
+        <button class="btn-ghost" onclick="showPage('general')">← Anterior</button>
+        <button class="btn-primary" onclick="showPage('etapas')">Siguiente: Etapas →</button>
+      </div>
+    </div>
+
+    <!-- PAGE: ETAPAS -->
+    <div class="page" id="page-etapas">
+      <div class="section-header">
+        <div class="section-tag">Paso 3 de 7</div>
+        <div class="section-title">Etapas Comerciales</div>
+        <div class="section-desc">Define precios y condiciones de financiamiento por cada etapa.</div>
+      </div>
+      <div id="etapas-container"></div>
+      <button class="btn-add" onclick="addEtapa()">+ Agregar Etapa</button>
+      <div class="action-row" style="margin-top:16px;">
+        <button class="btn-ghost" onclick="showPage('inventario')">← Anterior</button>
+        <button class="btn-primary" onclick="showPage('costos')">Siguiente: Costos →</button>
+      </div>
+    </div>
+
+    <!-- PAGE: COSTOS -->
+    <div class="page" id="page-costos">
+      <div class="section-header">
+        <div class="section-tag">Paso 4 de 7</div>
+        <div class="section-title">Estructura de Costos</div>
+        <div class="section-desc">Registra cada rubro con lo ya invertido y lo pendiente.</div>
+      </div>
+      <div class="card" id="costos-card">
+        <div class="card-title"><span class="ct-icon">💰</span> Presupuesto por Rubro</div>
+        <div style="overflow-x:auto;">
+          <table style="width:100%; font-size:13px; border-collapse:collapse;">
+            <thead>
+              <tr>
+                <th style="text-align:left;">Concepto</th>
+                <th style="text-align:right;">Presupuesto Total</th>
+                <th style="text-align:right;">Ya Ejercido</th>
+                <th style="text-align:right;">Pendiente</th>
+                <th style="text-align:center;">Prioridad</th>
+              </tr>
+            </thead>
+            <tbody id="costos-body"></tbody>
+          </table>
+        </div>
+        <button class="btn-add" onclick="addCostoRow()">+ Agregar Concepto</button>
+      </div>
+      <div class="action-row">
+        <button class="btn-ghost" onclick="showPage('etapas')">← Anterior</button>
+        <button class="btn-primary" onclick="showPage('ventas')">Siguiente: Ventas →</button>
+      </div>
+    </div>
+
+    <!-- PAGE: VENTAS -->
+    <div class="page" id="page-ventas">
+      <div class="section-header">
+        <div class="section-tag">Paso 5 de 7</div>
+        <div class="section-title">Ventas Realizadas</div>
+        <div class="section-desc">Detalle de cada operación cerrada para calcular el precio real de mercado.</div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="ct-icon">📝</span> Registro de Ventas</div>
+        <div style="overflow-x:auto;">
+          <table style="width:100%; font-size:12px; border-collapse:collapse;">
+            <thead>
+              <tr>
+                <th>Lote</th>
+                <th style="text-align:right;">m²</th>
+                <th style="text-align:right;">Precio Lista</th>
+                <th style="text-align:right;">Precio Cierre</th>
+                <th>Fecha</th>
+                <th>Esquema</th>
+                <th style="text-align:right;">Enganche</th>
+                <th style="text-align:right;">Mensualidad</th>
+                <th style="text-align:right;">Saldo Pend.</th>
+                <th>Estatus Pago</th>
+                <th>Asesor</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="ventas-body"></tbody>
+          </table>
+        </div>
+        <button class="btn-add" onclick="addVenta()">+ Registrar Venta</button>
+      </div>
+      <div class="action-row">
+        <button class="btn-ghost" onclick="showPage('costos')">← Anterior</button>
+        <button class="btn-primary" onclick="showPage('comercial')">Siguiente: Política →</button>
+      </div>
+    </div>
+
+    <!-- PAGE: COMERCIAL -->
+    <div class="page" id="page-comercial">
+      <div class="section-header">
+        <div class="section-tag">Paso 6 de 7</div>
+        <div class="section-title">Política Comercial</div>
+        <div class="section-desc">Define las reglas reales de operación comercial y de cobranza.</div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="ct-icon">📜</span> Condiciones de Venta</div>
+        <div class="form-grid three">
+          <div class="form-group">
+            <label>Enganche Mínimo (%)</label>
+            <input type="number" id="com-enganche" placeholder="10" min="0" max="100">
+          </div>
+          <div class="form-group">
+            <label>Plazo Máximo (meses)</label>
+            <input type="number" id="com-plazo-max" placeholder="72">
+          </div>
+          <div class="form-group">
+            <label>Descuento por Contado (%)</label>
+            <input type="number" id="com-dscto-contado" placeholder="5" min="0" max="50">
+          </div>
+          <div class="form-group">
+            <label>Margen de Negociación (%)</label>
+            <input type="number" id="com-margen" placeholder="3" min="0" max="20">
+          </div>
+          <div class="form-group">
+            <label>Monto de Apartado</label>
+            <div class="prefix-input"><span class="prefix">$</span><input type="number" id="com-apartado" placeholder="5000"></div>
+          </div>
+          <div class="form-group">
+            <label>Vigencia de Apartado (días)</label>
+            <input type="number" id="com-vg-apartado" placeholder="30">
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="ct-icon">💼</span> Comisiones</div>
+        <div class="form-grid three">
+          <div class="form-group">
+            <label>Comisión Asesor Interno (%)</label>
+            <input type="number" id="com-comi-int" placeholder="3" min="0" max="20">
+          </div>
+          <div class="form-group">
+            <label>Comisión Asesor Externo (%)</label>
+            <input type="number" id="com-comi-ext" placeholder="5" min="0" max="20">
+          </div>
+          <div class="form-group">
+            <label>Penalización por Mora (%/mes)</label>
+            <input type="number" id="com-mora" placeholder="2" min="0" max="20">
+          </div>
+          <div class="form-group">
+            <label>Asesores Internos #</label>
+            <input type="number" id="com-asesores-int" placeholder="2">
+          </div>
+          <div class="form-group">
+            <label>Asesores Externos #</label>
+            <input type="number" id="com-asesores-ext" placeholder="5">
+          </div>
+          <div class="form-group">
+            <label>Presupuesto Marketing/mes</label>
+            <div class="prefix-input"><span class="prefix">$</span><input type="number" id="com-marketing" placeholder="15000"></div>
+          </div>
+        </div>
+      </div>
+      <div class="action-row">
+        <button class="btn-ghost" onclick="showPage('ventas')">← Anterior</button>
+        <button class="btn-primary" onclick="showPage('legal')">Siguiente: Legal →</button>
+      </div>
+    </div>
+
+    <!-- PAGE: LEGAL -->
+    <div class="page" id="page-legal">
+      <div class="section-header">
+        <div class="section-tag">Paso 7 de 7</div>
+        <div class="section-title">Legal y Permisos</div>
+        <div class="section-desc">Estatus de toda la documentación regulatoria del proyecto.</div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="ct-icon">⚖️</span> Documentos y Permisos</div>
+        <div id="permisos-container"></div>
+        <button class="btn-add" onclick="addPermiso()">+ Agregar Permiso / Documento</button>
+      </div>
+      <div class="action-row">
+        <button class="btn-ghost" onclick="showPage('comercial')">← Anterior</button>
+        <button class="btn-primary" onclick="generateReport(); showPage('reporte')">📊 Ver Reporte Financiero</button>
+      </div>
+    </div>
+
+    <!-- PAGE: REPORTE -->
+    <div class="page" id="page-reporte">
+      <div class="section-header">
+        <div class="section-tag">Dashboard</div>
+        <div class="section-title" id="report-title">Reporte de Inversión</div>
+        <div class="section-desc">Análisis financiero completo para toma de decisiones.</div>
+      </div>
+      <div id="report-content"></div>
+      <div class="action-row">
+        <button class="btn-ghost" onclick="showPage('general')">← Editar Datos</button>
+        <button class="btn-primary" onclick="openPdfModal()">📄 Exportar PDF</button>
+      </div>
+    </div>
+
+    <!-- PAGE: FLUJO DE CAJA -->
+    <div class="page" id="page-flujo">
+      <div class="section-header">
+        <div class="section-tag">Análisis</div>
+        <div class="section-title">Flujo de Caja Mensual</div>
+        <div class="section-desc">Ingresos vs egresos mes a mes. ¿En qué mes empiezas a recuperar?</div>
+      </div>
+      <div class="card">
+        <div class="card-title">⚙️ Parámetros del Flujo</div>
+        <div class="form-grid three">
+          <div class="form-group">
+            <label>Mes de inicio (referencia)</label>
+            <input type="month" id="flujo-inicio" value="2026-01">
+          </div>
+          <div class="form-group">
+            <label>Horizonte (meses)</label>
+            <input type="number" id="flujo-horizonte" value="24" min="6" max="96">
+          </div>
+          <div class="form-group">
+            <label>Ventas proyectadas / mes</label>
+            <input type="number" id="flujo-ventas-mes" value="3" min="1">
+          </div>
+        </div>
+        <div class="action-row" style="margin-top:0;">
+          <button class="btn-primary" onclick="buildFlujoCaja()">Calcular Flujo</button>
+        </div>
+      </div>
+      <div id="flujo-content"></div>
+    </div>
+
+    <!-- PAGE: SIMULADOR -->
+    <div class="page" id="page-simulador">
+      <div class="section-header">
+        <div class="section-tag">Análisis</div>
+        <div class="section-title">Simulador de Escenarios</div>
+        <div class="section-desc">Compara distintos supuestos de venta y precio para tomar decisiones estratégicas.</div>
+      </div>
+      <div class="card">
+        <div class="card-title">⚙️ Configurar Escenarios</div>
+        <div class="form-grid three">
+          <div class="form-group">
+            <label>% Ventas Contado</label>
+            <input type="number" id="sim-pct-contado" value="30" min="0" max="100"> 
+          </div>
+          <div class="form-group">
+            <label>% Ventas a Crédito</label>
+            <input type="number" id="sim-pct-credito" value="70" min="0" max="100">
+          </div>
+          <div class="form-group">
+            <label>Incremento de precio entre etapas (%)</label>
+            <input type="number" id="sim-incremento" value="10" min="0" max="50">
+          </div>
+        </div>
+        <div class="action-row" style="margin-top:0;">
+          <button class="btn-primary" onclick="buildSimulador()">Simular</button>
+        </div>
+      </div>
+      <div id="simulador-content"></div>
+    </div>
+
+    <!-- PAGE: COBRANZA -->
+    <div class="page" id="page-cobranza">
+      <div class="section-header">
+        <div class="section-tag">Análisis</div>
+        <div class="section-title">Dashboard de Cobranza</div>
+        <div class="section-desc">Semáforo de cuentas activas y proyección de ingresos garantizados.</div>
+      </div>
+      <div id="cobranza-content"></div>
+    </div>
+
+    <!-- PAGE: EQUILIBRIO -->
+    <div class="page" id="page-equilibrio">
+      <div class="section-header">
+        <div class="section-tag">Análisis</div>
+        <div class="section-title">Punto de Equilibrio</div>
+        <div class="section-desc">Cuántos lotes necesitas vender para cubrir cada capa de costo del proyecto.</div>
+      </div>
+      <div id="equilibrio-content"></div>
+    </div>
+
+    <!-- PAGE: COMISIONES -->
+    <div class="page" id="page-comisiones">
+      <div class="section-header">
+        <div class="section-tag">Análisis</div>
+        <div class="section-title">Comisiones por Asesor</div>
+        <div class="section-desc">Detalle de lo que le corresponde a cada asesor basado en las ventas registradas.</div>
+      </div>
+      <div id="comisiones-content"></div>
+    </div>
+
+    <!-- PAGE: AVANCE DE OBRA -->
+    <div class="page" id="page-obra">
+      <div class="section-header">
+        <div class="section-tag">Herramientas</div>
+        <div class="section-title">Avance de Obra</div>
+        <div class="section-desc">Seguimiento físico y financiero de cada concepto de urbanización.</div>
+      </div>
+      <div class="card" id="obra-card">
+        <div class="card-title">🏗️ Conceptos de Obra</div>
+        <div style="overflow-x:auto;">
+          <table style="width:100%;font-size:13px;border-collapse:collapse;">
+            <thead><tr>
+              <th style="text-align:left;min-width:180px;">Concepto</th>
+              <th style="text-align:center;">Unidad</th>
+              <th style="text-align:right;">Cantidad Total</th>
+              <th style="text-align:right;">Ejecutado</th>
+              <th style="text-align:center;width:120px;">% Avance</th>
+              <th style="text-align:right;">Monto ($)</th>
+              <th style="text-align:center;">Semáforo</th>
+              <th style="text-align:center;">Fecha Meta</th>
+            </tr></thead>
+            <tbody id="obra-body"></tbody>
+          </table>
+        </div>
+        <button class="btn-add" onclick="addObraRow()">+ Agregar Concepto</button>
+      </div>
+    </div>
+
+    <!-- PAGE: HISTORIAL PRECIOS -->
+    <div class="page" id="page-historial">
+      <div class="section-header">
+        <div class="section-tag">Herramientas</div>
+        <div class="section-title">Historial de Precios</div>
+        <div class="section-desc">Registro de cambios de precio por etapa — argumento de apreciación para compradores.</div>
+      </div>
+      <div class="card">
+        <div class="card-title">📜 Registro de Cambios</div>
+        <div id="historial-list"></div>
+        <button class="btn-add" onclick="addHistorialRow()">+ Registrar Cambio de Precio</button>
+      </div>
+      <div id="historial-chart-wrap" class="card" style="margin-top:16px;"></div>
+    </div>
+
+    <!-- PAGE: COMPARATIVO -->
+    <div class="page" id="page-comparativo">
+      <div class="section-header">
+        <div class="section-tag">Exportar</div>
+        <div class="section-title">Comparativo de Proyectos</div>
+        <div class="section-desc">Side-by-side de los KPIs principales de todos tus proyectos en cartera.</div>
+      </div>
+      <div id="comparativo-content"></div>
+    </div>
+
+    <!-- PAGE: QR POR LOTE -->
+    <div class="page" id="page-qrlote">
+      <div class="section-header">
+        <div class="section-tag">Exportar</div>
+        <div class="section-title">Ficha QR por Lote</div>
+        <div class="section-desc">Genera una ficha descargable por lote con precios y esquemas para compartir por WhatsApp.</div>
+      </div>
+      <div class="card">
+        <div class="card-title">📱 Seleccionar Lote</div>
+        <div class="form-grid three">
+          <div class="form-group">
+            <label>Lote</label>
+            <select id="qr-lote-sel" onchange="buildQRFicha()"></select>
+          </div>
+          <div class="form-group">
+            <label>Incluir logo Luna GI</label>
+            <select id="qr-logo"><option value="1">Sí</option><option value="0">No</option></select>
+          </div>
+          <div class="form-group" style="align-self:end;">
+            <button class="btn-primary" onclick="downloadQRFicha()">⬇ Descargar Ficha PDF</button>
+          </div>
+        </div>
+      </div>
+      <div id="qr-ficha-preview" class="card" style="margin-top:16px;"></div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+// ==================== STATE ====================
+let state = {
+  lotes: [],
+  etapas: [],
+  costos: [],
+  ventas: [],
+  permisos: []
+};
+
+let etapaCount = 0;
+let costoCount = 0;
+let ventaCount = 0;
+let loteCount = 0;
+let permisoCount = 0;
+
+// ==================== NAVIGATION ====================
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  document.querySelector(`.nav-item[onclick*="'${id}'"]`)?.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function togglePill(el, groupId) {
+  const pills = document.getElementById(groupId).querySelectorAll('.status-pill');
+  pills.forEach(p => p.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function updateHeaderProject() {
+  const name = document.getElementById('g-nombre').value;
+  const el = document.getElementById('header-project-name') || document.querySelector('.logo-sub');
+  if (el && name) el.textContent = name + ' — Calculadora Inmobiliaria';
+}
+
+// ==================== LOTES ====================
+function addLote(data = {}) {
+  loteCount++;
+  const tbody = document.getElementById('lotes-body');
+  const id = 'lote-' + loteCount;
+  const row = document.createElement('tr');
+  row.id = id;
+  row.innerHTML = `
+    <td style="color:var(--muted);font-size:11px;">${loteCount}</td>
+    <td><input type="text" value="${data.lote || ''}" placeholder="L-01" style="width:60px;"></td>
+    <td><input type="text" value="${data.manzana || ''}" placeholder="A" style="width:50px;"></td>
+    <td><input type="number" value="${data.m2 || ''}" placeholder="200" style="width:65px;" oninput="syncLotePrice(this)"></td>
+    <td><input type="number" value="${data.frente || ''}" placeholder="10" style="width:55px;"></td>
+    <td><input type="number" value="${data.fondo || ''}" placeholder="20" style="width:55px;"></td>
+    <td><input type="text" value="${data.ubic || ''}" placeholder="Esquina, vista..." style="width:120px;"></td>
+    <td>
+      <select style="width:80px;">
+        <option value="">-</option>
+        <option value="1" ${data.etapa == '1' ? 'selected' : ''}>E1</option>
+        <option value="2" ${data.etapa == '2' ? 'selected' : ''}>E2</option>
+        <option value="3" ${data.etapa == '3' ? 'selected' : ''}>E3</option>
+        <option value="4" ${data.etapa == '4' ? 'selected' : ''}>E4</option>
+        <option value="5" ${data.etapa == '5' ? 'selected' : ''}>E5</option>
+      </select>
+    </td>
+    <td>
+      <select style="width:100px;" onchange="updateLoteStatusStyle(this)">
+        <option value="disponible" ${(data.estatus||'disponible') === 'disponible' ? 'selected':''}>Disponible</option>
+        <option value="vendido" ${data.estatus === 'vendido' ? 'selected':''}>Vendido</option>
+        <option value="apartado" ${data.estatus === 'apartado' ? 'selected':''}>Apartado</option>
+        <option value="bloqueado" ${data.estatus === 'bloqueado' ? 'selected':''}>Bloqueado</option>
+      </select>
+    </td>
+    <td>
+      <div class="prefix-input" style="width:110px;">
+        <span class="prefix">$</span>
+        <input type="number" value="${data.precio || ''}" placeholder="390000" style="padding-left:22px;width:110px;">
+      </div>
+    </td>
+    <td><button class="btn-del" onclick="removeRow('${id}')">✕</button></td>
+  `;
+  tbody.appendChild(row);
+}
+
+function bulkAddLotes() {
+  const count = parseInt(document.getElementById('bulk-count').value) || 5;
+  const m2 = document.getElementById('bulk-m2').value || 200;
+  const etapa = document.getElementById('bulk-etapa').value;
+  for (let i = 0; i < count; i++) {
+    addLote({ m2, etapa });
+  }
+}
+
+function updateLoteStatusStyle(sel) {
+  // visual hint — future enhancement
+}
+
+function syncLotePrice(input) {}
+
+// ==================== ETAPAS ====================
+function initEtapas() {
+  const container = document.getElementById('etapas-container');
+  if (container.children.length === 0) {
+    // Pre-load ALURA data
+    const defaultEtapas = [
+      { n:1, nombre:'Etapa 1', contado: 390000, e36: 425100, e72: 518700, enganche:10, status:'Completada', lotes:5 },
+      { n:2, nombre:'Etapa 2', contado: 390000, e36: 425100, e72: 518700, enganche:10, status:'Activa', lotes:10 },
+      { n:3, nombre:'Etapa 3', contado: 429000, e36: 467610, e72: 570570, enganche:10, status:'Próxima', lotes:10 },
+      { n:4, nombre:'Etapa 4', contado: 471900, e36: 514371, e72: 627627, enganche:10, status:'Futura', lotes:10 },
+      { n:5, nombre:'Etapa 5', contado: 519000, e36: 565710, e72: 690270, enganche:10, status:'Futura', lotes:7 },
+    ];
+    defaultEtapas.forEach(e => addEtapa(e));
+  }
+}
+
+function addEtapa(data = {}) {
+  etapaCount++;
+  const n = data.n || etapaCount;
+  const container = document.getElementById('etapas-container');
+  const div = document.createElement('div');
+  div.className = 'etapa-card';
+  div.id = 'etapa-' + etapaCount;
+  div.innerHTML = `
+    <div class="etapa-header">
+      <div class="etapa-num etapa-num-${n}">${n}</div>
+      <input type="text" value="${data.nombre || 'Etapa ' + n}" style="font-family: Playfair Display; font-size:18px; font-weight:700; border:none; background:transparent; flex:1;">
+      <select style="width:120px;">
+        <option ${data.status === 'Completada' ? 'selected':''}>Completada</option>
+        <option ${data.status === 'Activa' ? 'selected':''}>Activa</option>
+        <option ${data.status === 'Próxima' ? 'selected':''}>Próxima</option>
+        <option ${data.status === 'Futura' ? 'selected':''}>Futura</option>
+      </select>
+      <button class="btn-del" onclick="removeRow('etapa-${etapaCount}')">✕</button>
+    </div>
+    <div class="form-grid three">
+      <div class="form-group">
+        <label>Lotes en esta Etapa</label>
+        <input type="number" value="${data.lotes || ''}" class="e-lotes" placeholder="10">
+      </div>
+      <div class="form-group">
+        <label>Enganche (%)</label>
+        <input type="number" value="${data.enganche || 10}" class="e-enganche" placeholder="10">
+      </div>
+      <div class="form-group">
+        <label>Incremento vs Etapa Anterior (%)</label>
+        <input type="number" value="${data.incremento || 10}" class="e-incr" placeholder="10">
+      </div>
+    </div>
+    <div class="form-grid three" style="margin-top:12px;">
+      <div class="form-group">
+        <label>💵 Precio Contado</label>
+        <div class="prefix-input"><span class="prefix">$</span><input type="number" value="${data.contado || ''}" class="e-contado" placeholder="390000"></div>
+      </div>
+      <div class="form-group">
+        <label>📅 Precio 36 meses</label>
+        <div class="prefix-input"><span class="prefix">$</span><input type="number" value="${data.e36 || ''}" class="e-36m" placeholder="425100"></div>
+      </div>
+      <div class="form-group">
+        <label>📅 Precio 72 meses</label>
+        <div class="prefix-input"><span class="prefix">$</span><input type="number" value="${data.e72 || ''}" class="e-72m" placeholder="518700"></div>
+      </div>
+    </div>
+    <div class="form-grid" style="margin-top:12px;">
+      <div class="form-group">
+        <label>Tasa interna años 1–3 (%)</label>
+        <input type="number" value="${data.tasa1 || 3}" class="e-tasa1" placeholder="3">
+      </div>
+      <div class="form-group">
+        <label>Tasa interna años 4–6 (%)</label>
+        <input type="number" value="${data.tasa2 || 8}" class="e-tasa2" placeholder="8">
+      </div>
+    </div>
+  `;
+  container.appendChild(div);
+  requestAnimationFrame(() => div.querySelectorAll('input').forEach(inp => { if (isMoneyInput(inp)) formatMoneyInput(inp); }));
+}
+
+// ==================== COSTOS ====================
+function initCostos() {
+  const tbody = document.getElementById('costos-body');
+  if (tbody.children.length === 0) {
+    const defaultCostos = [
+      { cat: 'A. ACTIVO BASE', concepto:'Costo del terreno / valor reconocido', total:0, ejercido:0, prioridad:'Crítico' },
+      { cat: '', concepto:'Honorarios legales de adquisición', total:0, ejercido:0, prioridad:'Alto' },
+      { cat: 'B. PREOPERATIVOS', concepto:'Topografía y trazo', total:0, ejercido:0, prioridad:'Alto' },
+      { cat: '', concepto:'Permisos y trámites', total:0, ejercido:0, prioridad:'Crítico' },
+      { cat: '', concepto:'Proyecto ejecutivo / diseño', total:0, ejercido:0, prioridad:'Alto' },
+      { cat: 'C. URBANIZACIÓN', concepto:'Obra civil eléctrica (registros, mangueras)', total:0, ejercido:0, prioridad:'Crítico' },
+      { cat: '', concepto:'Trámite CFE', total:0, ejercido:0, prioridad:'Alto' },
+      { cat: '', concepto:'Pozo y red hidráulica', total:0, ejercido:0, prioridad:'Crítico' },
+      { cat: '', concepto:'Trámite CONAGUA', total:0, ejercido:0, prioridad:'Medio' },
+      { cat: '', concepto:'Pavimentación (3,000+ m²)', total:0, ejercido:0, prioridad:'Alto' },
+      { cat: '', concepto:'Banquetas y guarniciones (~300 ml)', total:0, ejercido:0, prioridad:'Alto' },
+      { cat: '', concepto:'Alumbrado público (~20 postes)', total:0, ejercido:0, prioridad:'Medio' },
+      { cat: '', concepto:'Fachada principal de acceso', total:0, ejercido:0, prioridad:'Crítico' },
+      { cat: '', concepto:'Palapa y fogatero (etapas finales)', total:0, ejercido:0, prioridad:'Bajo' },
+      { cat: 'D. COMERCIALIZACIÓN', concepto:'Publicidad y marketing', total:0, ejercido:0, prioridad:'Alto' },
+      { cat: '', concepto:'Renders y audiovisual', total:0, ejercido:0, prioridad:'Medio' },
+      { cat: '', concepto:'Evento de apertura', total:0, ejercido:0, prioridad:'Alto' },
+      { cat: 'E. VENTAS', concepto:'Comisiones de venta', total:0, ejercido:0, prioridad:'Alto' },
+      { cat: '', concepto:'Gastos notariales', total:0, ejercido:0, prioridad:'Medio' },
+      { cat: 'F. OPERACIÓN', concepto:'Nómina y administración', total:0, ejercido:0, prioridad:'Alto' },
+      { cat: '', concepto:'Imprevistos / contingencia (5-10%)', total:0, ejercido:0, prioridad:'Crítico' },
+    ];
+    defaultCostos.forEach(c => addCostoRow(c));
+  }
+}
+
+function addCostoRow(data = {}) {
+  costoCount++;
+  const tbody = document.getElementById('costos-body');
+  const id = 'costo-' + costoCount;
+  if (data.cat) {
+    const catRow = document.createElement('tr');
+    catRow.innerHTML = `<td colspan="5" style="background:#134289;color:#ffffff;padding:6px 12px;font-size:10px;letter-spacing:2px;text-transform:uppercase;font-weight:600;">${data.cat}</td>`;
+    tbody.appendChild(catRow);
+  }
+  const row = document.createElement('tr');
+  row.id = id;
+  row.innerHTML = `
+    <td><input type="text" value="${data.concepto||''}" placeholder="Descripción del costo" style="min-width:200px;"></td>
+    <td style="text-align:right;">
+      <div class="prefix-input"><span class="prefix">$</span><input type="number" value="${data.total||''}" placeholder="0" style="width:120px;text-align:right;padding-left:22px;" class="c-total" oninput="updateCostoPendiente(this)"></div>
+    </td>
+    <td style="text-align:right;">
+      <div class="prefix-input"><span class="prefix">$</span><input type="number" value="${data.ejercido||''}" placeholder="0" style="width:120px;text-align:right;padding-left:22px;" class="c-ejercido" oninput="updateCostoPendiente(this)"></div>
+    </td>
+    <td style="text-align:right;" class="c-pendiente-cell">
+      <span style="font-weight:600;color:var(--rust);">$0</span>
+    </td>
+    <td style="text-align:center;">
+      <select style="width:90px;font-size:11px;" class="c-prioridad">
+        <option ${data.prioridad==='Crítico'?'selected':''}>Crítico</option>
+        <option ${data.prioridad==='Alto'?'selected':''}>Alto</option>
+        <option ${data.prioridad==='Medio'?'selected':''}>Medio</option>
+        <option ${data.prioridad==='Bajo'?'selected':''}>Bajo</option>
+      </select>
+    </td>
+  `;
+  tbody.appendChild(row);
+  updateCostoPendiente(row.querySelector('.c-total'));
+  requestAnimationFrame(() => row.querySelectorAll('input').forEach(inp => { if (isMoneyInput(inp)) formatMoneyInput(inp); }));
+}
+
+function updateCostoPendiente(input) {
+  const row = input.closest('tr');
+  if (!row) return;
+  const total = parseFloat(String(row.querySelector('.c-total')?.value||'0').replace(/,/g,'')) || 0;
+  const ejercido = parseFloat(String(row.querySelector('.c-ejercido')?.value||'0').replace(/,/g,'')) || 0;
+  const pendiente = total - ejercido;
+  const cell = row.querySelector('.c-pendiente-cell');
+  if (cell) {
+    cell.innerHTML = `<span style="font-weight:600;color:${pendiente > 0 ? 'var(--rust)' : 'var(--sage)'};">${fmtMXN(pendiente)}</span>`;
+  }
+}
+
+// ==================== VENTAS ====================
+function addVenta(data = {}) {
+  ventaCount++;
+  const tbody = document.getElementById('ventas-body');
+  const id = 'venta-' + ventaCount;
+  const row = document.createElement('tr');
+  row.id = id;
+  row.innerHTML = `
+    <td><input type="text" value="${data.lote||''}" placeholder="L-01" style="width:55px;"></td>
+    <td style="text-align:right;"><input type="number" value="${data.m2||''}" placeholder="200" style="width:60px;text-align:right;"></td>
+    <td style="text-align:right;"><div class="prefix-input" style="width:110px;"><span class="prefix">$</span><input type="number" value="${data.lista||''}" placeholder="390000" style="width:110px;text-align:right;padding-left:22px;"></div></td>
+    <td style="text-align:right;"><div class="prefix-input" style="width:110px;"><span class="prefix">$</span><input type="number" value="${data.cierre||''}" placeholder="390000" style="width:110px;text-align:right;padding-left:22px;"></div></td>
+    <td><input type="date" value="${data.fecha||''}" style="width:120px;"></td>
+    <td>
+      <select style="width:90px;font-size:11px;">
+        <option ${data.esquema==='contado'?'selected':''}>contado</option>
+        <option ${data.esquema==='36m'?'selected':''}>36m</option>
+        <option ${data.esquema==='48m'?'selected':''}>48m</option>
+        <option ${data.esquema==='72m'?'selected':''}>72m</option>
+      </select>
+    </td>
+    <td style="text-align:right;"><div class="prefix-input" style="width:90px;"><span class="prefix">$</span><input type="number" value="${data.enganche||''}" placeholder="0" style="width:90px;text-align:right;padding-left:22px;"></div></td>
+    <td style="text-align:right;"><div class="prefix-input" style="width:90px;"><span class="prefix">$</span><input type="number" value="${data.mensual||''}" placeholder="0" style="width:90px;text-align:right;padding-left:22px;"></div></td>
+    <td style="text-align:right;"><div class="prefix-input" style="width:100px;"><span class="prefix">$</span><input type="number" value="${data.saldo||''}" placeholder="0" style="width:100px;text-align:right;padding-left:22px;"></div></td>
+    <td>
+      <select style="width:90px;font-size:11px;">
+        <option ${data.pago==='corriente'?'selected':''}>corriente</option>
+        <option ${data.pago==='atraso'?'selected':''}>atraso</option>
+        <option ${data.pago==='cancelado'?'selected':''}>cancelado</option>
+      </select>
+    </td>
+    <td><input type="text" value="${data.asesor||''}" placeholder="Nombre" style="width:90px;"></td>
+    <td><button class="btn-del" onclick="removeRow('${id}')">✕</button></td>
+  `;
+  tbody.appendChild(row);
+  requestAnimationFrame(() => row.querySelectorAll('input[type="number"]').forEach(inp => { if (isMoneyInput(inp)) formatMoneyInput(inp); }));
+}
+
+// ==================== PERMISOS ====================
+function initPermisos() {
+  const container = document.getElementById('permisos-container');
+  if (container.children.length === 0) {
+    const defaults = [
+      { doc: 'Acta de posesión a mi nombre', status: 'listo' },
+      { doc: 'Autorización de bienes comunales', status: 'listo' },
+      { doc: 'Plano autorizado y firmado por bienes comunales', status: 'listo' },
+      { doc: 'Cambio de uso de suelo municipal', status: 'listo' },
+      { doc: 'Permiso de lotificación con medidas y colindancias', status: 'listo' },
+      { doc: 'Plano de subdivisión autorizado municipio', status: 'listo' },
+      { doc: 'Constancia de no adeudo Charco Seco', status: 'pendiente' },
+      { doc: 'Alineamiento y uso de suelo', status: 'tramite' },
+      { doc: 'Permisos de obra mayor', status: 'tramite' },
+      { doc: 'Trámite ante CFE (energía eléctrica)', status: 'no-iniciado' },
+      { doc: 'Concesión CONAGUA para pozo de agua', status: 'no-iniciado' },
+    ];
+    defaults.forEach(p => addPermiso(p));
+  }
+}
+
+function addPermiso(data = {}) {
+  permisoCount++;
+  const container = document.getElementById('permisos-container');
+  const id = 'permiso-' + permisoCount;
+  const div = document.createElement('div');
+  div.id = id;
+  div.style.cssText = 'display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);';
+  div.innerHTML = `
+    <input type="text" value="${data.doc||''}" placeholder="Nombre del permiso o documento" style="flex:1;">
+    <select style="width:140px;font-size:12px;">
+      <option value="listo" ${data.status==='listo'?'selected':''}>✅ Listo</option>
+      <option value="tramite" ${data.status==='tramite'?'selected':''}>🔄 En Trámite</option>
+      <option value="pendiente" ${data.status==='pendiente'?'selected':''}>⏳ Pendiente</option>
+      <option value="no-iniciado" ${data.status==='no-iniciado'?'selected':''}>🔴 No Iniciado</option>
+      <option value="observado" ${data.status==='observado'?'selected':''}>⚠️ Con Riesgo</option>
+    </select>
+    <input type="date" value="${data.fecha||''}" style="width:140px;" title="Fecha objetivo">
+    <input type="text" value="${data.obs||''}" placeholder="Observación..." style="width:180px;font-size:12px;">
+    <button class="btn-del" onclick="removeRow('${id}')">✕</button>
+  `;
+  container.appendChild(div);
+}
+
+// ==================== UTILITIES ====================
+function removeRow(id) {
+  const el = document.getElementById(id);
+  if (el) el.remove();
+}
+
+function fmtMXN(n) {
+  if (!n && n !== 0) return '$0';
+  return '$' + Math.round(n).toLocaleString('es-MX');
+}
+
+// ==================== MONEY INPUT FORMATTING ====================
+// IDs of inputs that hold peso amounts (not quantities/percentages)
+const MONEY_IDS = [
+  'g-ingreso','g-gasto','g-utilidad','com-apartado','com-marketing',
+  'np-ingreso','np-gasto'
+];
+// Classes of money inputs generated dynamically
+const MONEY_CLASSES = ['e-contado','e-36m','e-72m','c-total','c-ejercido'];
+
+function formatMoneyInput(input) {
+  const raw = parseFloat(String(input.value).replace(/,/g,'').replace(/\$/g,''));
+  if (!isNaN(raw) && raw > 0) {
+    input.dataset.raw = raw;
+    input.type = 'text';
+    input.value = raw.toLocaleString('es-MX');
+  }
+}
+
+function unformatMoneyInput(input) {
+  const raw = input.dataset.raw || String(input.value).replace(/,/g,'').replace(/\$/g,'');
+  input.type = 'number';
+  input.value = raw;
+}
+
+function isMoneyInput(el) {
+  if (el.tagName !== 'INPUT') return false;
+  if (MONEY_IDS.includes(el.id)) return true;
+  for (const cls of MONEY_CLASSES) if (el.classList.contains(cls)) return true;
+  // Any input inside a .prefix-input that has type number with large placeholder
+  const parent = el.closest('.prefix-input');
+  if (parent && el.type === 'number') {
+    const ph = parseFloat(el.placeholder);
+    if (!isNaN(ph) && ph >= 1000) return true;
+  }
+  return false;
+}
+
+function getNumericValue(input) {
+  const raw = input.dataset.raw || String(input.value).replace(/,/g,'');
+  return parseFloat(raw) || 0;
+}
+
+// Override parseFloat for money inputs — patch global read points
+function patchMoneyReads() {
+  // Patch c-total and c-ejercido reads in updateCostoPendiente
+  document.querySelectorAll('.c-total, .c-ejercido').forEach(el => {
+    if (el._moneyPatched) return;
+    el._moneyPatched = true;
+  });
+}
+
+// Setup delegation on document
+document.addEventListener('focus', function(e) {
+  if (isMoneyInput(e.target)) {
+    const raw = e.target.dataset.raw || String(e.target.value).replace(/,/g,'').replace(/\$/g,'');
+    e.target.type = 'number';
+    e.target.value = raw;
+    setTimeout(() => e.target.select(), 10);
+  }
+}, true);
+
+document.addEventListener('blur', function(e) {
+  if (isMoneyInput(e.target)) {
+    const raw = parseFloat(String(e.target.value).replace(/,/g,'').replace(/\$/g,''));
+    if (!isNaN(raw) && raw > 0) {
+      e.target.dataset.raw = raw;
+      e.target.type = 'text';
+      e.target.value = raw.toLocaleString('es-MX');
+    }
+    e.target.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+}, true);
+
+
+// Format all existing money inputs on page load
+function formatAllMoneyInputs() {
+  document.querySelectorAll('input[type="number"], input[type="text"]').forEach(input => {
+    if (isMoneyInput(input)) {
+      const raw = parseFloat(String(input.value).replace(/,/g,''));
+      if (!isNaN(raw) && raw >= 1000) {
+        input.dataset.raw = raw;
+        input.value = raw.toLocaleString('es-MX');
+      }
+    }
+  });
+}
+
+// Also patch the report/flujo collectors to use raw values
+function getRawValue(input) {
+  if (!input) return 0;
+  const v = input.dataset.raw || String(input.value).replace(/[,$\s]/g,'');
+  return parseFloat(v) || 0;
+}
+
+function fmtPct(n) {
+  return (Math.round(n * 10) / 10) + '%';
+}
+
+// ==================== REPORT GENERATION ====================
+function generateReport() {
+  // Collect etapas data
+  const etapaCards = document.querySelectorAll('#etapas-container .etapa-card');
+  const etapas = [];
+  etapaCards.forEach((card, idx) => {
+    const lotes = parseFloat(card.querySelector('.e-lotes')?.value) || 0;
+    const contado = parseFloat(String(card.querySelector('.e-contado')?.value||'0').replace(/,/g,'')) || 0;
+    const e36 = parseFloat(String(card.querySelector('.e-36m')?.value||'0').replace(/,/g,'')) || 0;
+    const e72 = parseFloat(String(card.querySelector('.e-72m')?.value||'0').replace(/,/g,'')) || 0;
+    const enganche = parseFloat(card.querySelector('.e-enganche')?.value) || 10;
+    const nameInput = card.querySelector('input[type="text"]');
+    const name = nameInput?.value || ('Etapa ' + (idx + 1));
+    const statusSel = card.querySelector('select');
+    const status = statusSel?.value || '';
+    etapas.push({ name, lotes, contado, e36, e72, enganche, status });
+  });
+
+  // Collect costos
+  let totalPresupuesto = 0, totalEjercido = 0, totalPendiente = 0;
+  document.querySelectorAll('#costos-body tr').forEach(row => {
+    const t = parseFloat(String(row.querySelector('.c-total')?.value||'0').replace(/,/g,'')) || 0;
+    const e = parseFloat(String(row.querySelector('.c-ejercido')?.value||'0').replace(/,/g,'')) || 0;
+    totalPresupuesto += t;
+    totalEjercido += e;
+    totalPendiente += (t - e);
+  });
+
+  // Collect ventas
+  const ventaRows = document.querySelectorAll('#ventas-body tr');
+  let totalCobrado = 0, totalCartera = 0, cuentasAtraso = 0;
+  let ventasList = [];
+  ventaRows.forEach(row => {
+    const enganche = parseFloat(String(row.querySelectorAll('input[type="number"]')[4]?.value||'').replace(/,/g,'')) || 0;
+    const saldo = parseFloat(String(row.querySelectorAll('input[type="number"]')[6]?.value||'').replace(/,/g,'')) || 0;
+    const mensual = parseFloat(String(row.querySelectorAll('input[type="number"]')[5]?.value||'').replace(/,/g,'')) || 0;
+    const cierre = parseFloat(row.querySelectorAll('input[type="number"]')[1]?.value) || 0;
+    const pagoSel = row.querySelectorAll('select')[1]?.value;
+    if (pagoSel === 'atraso') cuentasAtraso++;
+    totalCobrado += enganche;
+    totalCartera += saldo;
+    ventasList.push({ cierre, saldo, mensual, enganche });
+  });
+  const ingresoMensualCartera = ventasList.reduce((s, v) => s + v.mensual, 0);
+
+  // General data
+  const nombre = document.getElementById('g-nombre')?.value || 'Proyecto';
+  const totalLotes = parseInt(document.getElementById('g-total-lotes')?.value) || 0;
+  const vendidos = parseInt(document.getElementById('g-vendidos')?.value) || 0;
+  const disponibles = totalLotes - vendidos;
+  const ingresoBrutoEstimado = parseFloat(String(document.getElementById('g-ingreso')?.value||'0').replace(/,/g,'')) || 0;
+  const gastoEstimado = parseFloat(String(document.getElementById('g-gasto')?.value||'0').replace(/,/g,'')) || 0;
+  const utilidadEstimada = ingresoBrutoEstimado - gastoEstimado;
+  const margenEstimado = ingresoBrutoEstimado > 0 ? (utilidadEstimada / ingresoBrutoEstimado) * 100 : 0;
+
+  // Ingreso potencial desde etapas (base contado)
+  const ingresoPotencialEtapas = etapas.reduce((s, e) => s + (e.lotes * e.contado), 0);
+
+  // Lotes permiso
+  const permisosListo = document.querySelectorAll('#permisos-container select option[value="listo"]:checked').length;
+  const permisosTramite = document.querySelectorAll('#permisos-container select option[value="tramite"]:checked').length;
+  const permisosTotal = document.querySelectorAll('#permisos-container .btn-del').length;
+  const permisosPendientes = permisosTotal - permisosListo;
+
+  // Punto de equilibrio (lotes necesarios para cubrir costos)
+  const avgPrecio = ingresoPotencialEtapas / Math.max(etapas.reduce((s,e)=>s+e.lotes,0),1);
+  const puntoEquilibrio = avgPrecio > 0 ? Math.ceil(totalPresupuesto / avgPrecio) : 0;
+
+  document.getElementById('report-title').textContent = `Reporte — ${nombre}`;
+
+  // BUILD REPORT HTML
+  let html = '';
+
+  // Alerts
+  html += `<div>`;
+  if (utilidadEstimada > 0) {
+    html += `<div class="alert success"><span class="alert-icon">✅</span> Utilidad estimada positiva: <strong>${fmtMXN(utilidadEstimada)}</strong> (${fmtPct(margenEstimado)} de margen bruto).</div>`;
+  }
+  if (totalPendiente > totalEjercido && totalPresupuesto > 0) {
+    html += `<div class="alert warning"><span class="alert-icon">⚠️</span> El <strong>${fmtPct((totalPendiente/totalPresupuesto)*100)}</strong> del presupuesto aún está pendiente de ejercer. Controla el flujo por etapa.</div>`;
+  }
+  if (cuentasAtraso > 0) {
+    html += `<div class="alert danger"><span class="alert-icon">🔴</span> <strong>${cuentasAtraso} cuentas en atraso</strong> detectadas. Revisar cobranza.</div>`;
+  }
+  html += `</div>`;
+
+  // KPI Metrics
+  html += `<div class="metrics-grid">
+    <div class="metric-card">
+      <div class="metric-label">Ingreso Bruto Estimado</div>
+      <div class="metric-value">${fmtMXN(ingresoBrutoEstimado)}</div>
+      <div class="metric-sub">Total del proyecto</div>
+    </div>
+    <div class="metric-card green">
+      <div class="metric-label">Utilidad Estimada</div>
+      <div class="metric-value" style="color:var(--sage)">${fmtMXN(utilidadEstimada)}</div>
+      <div class="metric-sub">Margen: ${fmtPct(margenEstimado)}</div>
+    </div>
+    <div class="metric-card red">
+      <div class="metric-label">Gasto Total Estimado</div>
+      <div class="metric-value" style="color:var(--rust)">${fmtMXN(gastoEstimado)}</div>
+      <div class="metric-sub">Inversión total</div>
+    </div>
+    <div class="metric-card blue">
+      <div class="metric-label">Inventario Disponible</div>
+      <div class="metric-value" style="color:#007bbb">${disponibles} <span style="font-size:16px;">lotes</span></div>
+      <div class="metric-sub">${vendidos} vendidos de ${totalLotes} totales</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Inversión Ejercida</div>
+      <div class="metric-value">${fmtMXN(totalEjercido)}</div>
+      <div class="metric-sub">Pendiente: ${fmtMXN(totalPendiente)}</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Punto de Equilibrio</div>
+      <div class="metric-value">${puntoEquilibrio} <span style="font-size:16px;">lotes</span></div>
+      <div class="metric-sub">Para cubrir costo total</div>
+    </div>
+  </div>`;
+
+  // Inventory bar
+  html += `<div class="report-section">
+    <div class="report-section-header">
+      <div class="report-section-title">📋 Inventario y Absorción</div>
+    </div>
+    <div class="report-section-body">
+      <div class="two-col">
+        <div>
+          <div class="stat-row"><span class="stat-name">Total de lotes</span><span class="stat-val">${totalLotes}</span></div>
+          <div class="stat-row"><span class="stat-name">Vendidos</span><span class="stat-val pos">${vendidos}</span></div>
+          <div class="stat-row"><span class="stat-name">Disponibles</span><span class="stat-val gold">${disponibles}</span></div>
+          <div class="stat-row"><span class="stat-name">% Colocado</span><span class="stat-val">${totalLotes > 0 ? fmtPct((vendidos/totalLotes)*100) : '0%'}</span></div>
+          <div class="stat-row"><span class="stat-name">% Disponible</span><span class="stat-val">${totalLotes > 0 ? fmtPct((disponibles/totalLotes)*100) : '100%'}</span></div>
+        </div>
+        <div>
+          <div style="margin-bottom:16px;">
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;">
+              <span>Avance de colocación</span>
+              <strong>${totalLotes > 0 ? fmtPct((vendidos/totalLotes)*100) : '0%'}</strong>
+            </div>
+            <div class="progress-bar"><div class="progress-fill green" style="width:${totalLotes > 0 ? (vendidos/totalLotes)*100 : 0}%"></div></div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;">
+              <span>Punto de equilibrio alcanzado</span>
+              <strong>${totalLotes > 0 ? fmtPct(Math.min((vendidos/Math.max(puntoEquilibrio,1))*100,100)) : '0%'}</strong>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width:${Math.min((vendidos/Math.max(puntoEquilibrio,1))*100,100)}%"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+
+  // Etapas table
+  if (etapas.length > 0) {
+    let totalEtapasLotes = 0, totalIngresoContado = 0;
+    let etapasRows = etapas.map(e => {
+      totalEtapasLotes += e.lotes;
+      const ingresoEtapa = e.lotes * e.contado;
+      totalIngresoContado += ingresoEtapa;
+      return `<tr>
+        <td>${e.name} <span style="font-size:10px;color:var(--muted);font-weight:400;">(${e.status})</span></td>
+        <td>${e.lotes}</td>
+        <td>${fmtMXN(e.contado)}</td>
+        <td>${fmtMXN(e.e36)}</td>
+        <td>${fmtMXN(e.e72)}</td>
+        <td>${fmtMXN(ingresoEtapa)}</td>
+        <td>${e.enganche}%</td>
+      </tr>`;
+    }).join('');
+
+    html += `<div class="report-section">
+      <div class="report-section-header">
+        <div class="report-section-title">🔢 Escalera Comercial por Etapas</div>
+      </div>
+      <div class="report-section-body" style="padding:0;">
+        <table class="etapas-report-table">
+          <thead>
+            <tr>
+              <th>Etapa</th>
+              <th style="text-align:right;">Lotes</th>
+              <th>Contado</th>
+              <th>36 Meses</th>
+              <th>72 Meses</th>
+              <th>Ingreso Etapa (contado)</th>
+              <th>Enganche</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${etapasRows}
+            <tr class="total-row">
+              <td>TOTAL</td>
+              <td style="text-align:right;">${totalEtapasLotes}</td>
+              <td>—</td>
+              <td>—</td>
+              <td>—</td>
+              <td style="text-align:right;">${fmtMXN(totalIngresoContado)}</td>
+              <td>—</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+  }
+
+  // Costos vs ingresos
+  html += `<div class="report-section">
+    <div class="report-section-header">
+      <div class="report-section-title">💰 Análisis de Costos e Inversión</div>
+    </div>
+    <div class="report-section-body">
+      <div class="two-col">
+        <div>
+          <div class="stat-row"><span class="stat-name">Presupuesto Total</span><span class="stat-val">${fmtMXN(totalPresupuesto)}</span></div>
+          <div class="stat-row"><span class="stat-name">Ya Ejercido</span><span class="stat-val pos">${fmtMXN(totalEjercido)}</span></div>
+          <div class="stat-row"><span class="stat-name">Pendiente de Ejercer</span><span class="stat-val neg">${fmtMXN(totalPendiente)}</span></div>
+          <div class="stat-row"><span class="stat-name">% Ejecutado</span><span class="stat-val">${totalPresupuesto > 0 ? fmtPct((totalEjercido/totalPresupuesto)*100) : '0%'}</span></div>
+        </div>
+        <div>
+          <div class="stat-row"><span class="stat-name">Ingreso Potencial Total</span><span class="stat-val pos">${fmtMXN(ingresoBrutoEstimado || ingresoPotencialEtapas)}</span></div>
+          <div class="stat-row"><span class="stat-name">Costo por Lote Promedio</span><span class="stat-val">${totalLotes > 0 ? fmtMXN(totalPresupuesto/totalLotes) : '$0'}</span></div>
+          <div class="stat-row"><span class="stat-name">ROI Estimado</span><span class="stat-val pos">${gastoEstimado > 0 ? fmtPct((utilidadEstimada/gastoEstimado)*100) : '—'}</span></div>
+          <div class="stat-row"><span class="stat-name">Lotes para Equilibrio</span><span class="stat-val gold">${puntoEquilibrio}</span></div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+
+  // Cobranza
+  html += `<div class="report-section">
+    <div class="report-section-header">
+      <div class="report-section-title">📥 Cobranza y Cartera</div>
+    </div>
+    <div class="report-section-body">
+      <div class="two-col">
+        <div>
+          <div class="stat-row"><span class="stat-name">Total Cobrado (enganches)</span><span class="stat-val pos">${fmtMXN(totalCobrado)}</span></div>
+          <div class="stat-row"><span class="stat-name">Cartera Pendiente</span><span class="stat-val">${fmtMXN(totalCartera)}</span></div>
+          <div class="stat-row"><span class="stat-name">Ingreso Mensual (mensualidades)</span><span class="stat-val gold">${fmtMXN(ingresoMensualCartera)}</span></div>
+        </div>
+        <div>
+          <div class="stat-row"><span class="stat-name">Cuentas Vendidas</span><span class="stat-val">${ventasList.length}</span></div>
+          <div class="stat-row"><span class="stat-name">Cuentas en Atraso</span><span class="stat-val ${cuentasAtraso > 0 ? 'neg' : 'pos'}">${cuentasAtraso}</span></div>
+          <div class="stat-row"><span class="stat-name">% Cartera en Riesgo</span><span class="stat-val">${ventasList.length > 0 ? fmtPct((cuentasAtraso/ventasList.length)*100) : '0%'}</span></div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+
+  // Legal
+  html += `<div class="report-section">
+    <div class="report-section-header">
+      <div class="report-section-title">⚖️ Estatus Legal y Permisos</div>
+    </div>
+    <div class="report-section-body">
+      <div id="report-permisos-list"></div>
+    </div>
+  </div>`;
+
+  document.getElementById('report-content').innerHTML = html;
+
+  // Populate legal list
+  const permisosList = document.getElementById('report-permisos-list');
+  if (permisosList) {
+    document.querySelectorAll('#permisos-container > div').forEach(pDiv => {
+      const doc = pDiv.querySelector('input[type="text"]')?.value;
+      const status = pDiv.querySelector('select')?.value;
+      if (!doc) return;
+      const statusMap = { listo: '✅ Listo', tramite: '🔄 En Trámite', pendiente: '⏳ Pendiente', 'no-iniciado': '🔴 No Iniciado', observado: '⚠️ Con Riesgo' };
+      const colorMap = { listo: '#007bbb', tramite: '#134289', pendiente: '#f57f17', 'no-iniciado': 'var(--rust)', observado: '#9c27b0' };
+      const row = document.createElement('div');
+      row.className = 'stat-row';
+      row.innerHTML = `<span class="stat-name">${doc}</span><span style="font-weight:600;color:${colorMap[status]||'var(--muted)'};">${statusMap[status]||status}</span>`;
+      permisosList.appendChild(row);
+    });
+  }
+}
+
+// ==================== ALURA DATA PRELOAD ====================
+function loadALURAData() {
+  // --- SECCIÓN 1: GENERAL ---
+  document.getElementById('g-nombre').value = 'ALURA';
+  document.getElementById('g-tipo').value = 'Fraccionamiento';
+  document.getElementById('g-municipio').value = 'Puerto Escondido';
+  document.getElementById('g-estado').value = 'Oaxaca';
+  document.getElementById('g-total-lotes').value = 46;
+  document.getElementById('g-vendidos').value = 6;
+  document.getElementById('g-sup-total').value = 10387;
+  document.getElementById('g-sup-vendible').value = 10387;
+  // Metas financieras (estimadas de la proyección contado total Etapas 2-5)
+  // E2: 13 lotes × $1950/m2 × ~200m2 avg ≈ $5,070,000
+  // E3: 10 × $2145 × 200 = $4,290,000
+  // E4: 13 × $2359.5 × 200 = $6,134,700
+  // E5: 10 × $2595 × 200 = $5,190,000 → Total ≈ $20.6M
+  document.getElementById('g-ingreso').value = 20600000;
+  document.getElementById('g-gasto').value = 2121126;  // costos conocidos del excel
+  document.getElementById('g-utilidad').value = 18478874;
+  document.getElementById('g-meta-lotes').value = 20;
+  document.getElementById('g-meta-mes').value = 3;
+  document.getElementById('g-meta-min').value = 1;
+  document.getElementById('g-notas').value = 'Fraccionamiento residencial en bienes comunales. Terreno de 10,387 m² con 2 manzanas. Etapa 1 completada (no en proyección de precios). Precio base por m² escala por etapa: E2=$1,950 → E3=$2,145 → E4=$2,359.50 → E5=$2,595. Incremento ~10% por etapa.';
+  updateHeaderProject();
+
+  // Seleccionar objetivo
+  const pills = document.querySelectorAll('#objetivo-group .status-pill');
+  pills.forEach(p => { if (p.textContent.trim() === 'Maximizar Utilidad') p.classList.add('selected'); });
+
+  // --- SECCIÓN 2: INVENTARIO DE LOTES (Manzana 1: 23 lotes + Manzana 2: 22 lotes + Manzana 1 L24) ---
+  const lotes = [
+    // Manzana 1
+    { lote:'M1-L01', manzana:'1', m2:323.41, etapa:'2', estatus:'vendido',    precio: Math.round(323.41*1950) },
+    { lote:'M1-L02', manzana:'1', m2:200,    etapa:'2', estatus:'vendido',    precio: Math.round(200*1950) },
+    { lote:'M1-L03', manzana:'1', m2:200,    etapa:'2', estatus:'disponible', precio: Math.round(200*1950) },
+    { lote:'M1-L04', manzana:'1', m2:200,    etapa:'2', estatus:'disponible', precio: Math.round(200*1950) },
+    { lote:'M1-L05', manzana:'1', m2:200,    etapa:'2', estatus:'disponible', precio: Math.round(200*1950) },
+    { lote:'M1-L06', manzana:'1', m2:200,    etapa:'2', estatus:'disponible', precio: Math.round(200*1950) },
+    { lote:'M1-L07', manzana:'1', m2:200,    etapa:'2', estatus:'disponible', precio: Math.round(200*1950) },
+    { lote:'M1-L08', manzana:'1', m2:200,    etapa:'2', estatus:'disponible', precio: Math.round(200*1950) },
+    { lote:'M1-L09', manzana:'1', m2:200,    etapa:'2', estatus:'disponible', precio: Math.round(200*1950) },
+    { lote:'M1-L10', manzana:'1', m2:200,    etapa:'2', estatus:'disponible', precio: Math.round(200*1950) },
+    { lote:'M1-L11', manzana:'1', m2:400,    etapa:'2', estatus:'vendido',    precio: Math.round(400*1950), ubic:'Esquina' },
+    { lote:'M1-L12', manzana:'1', m2:400,    etapa:'2', estatus:'apartado',   precio: Math.round(400*1950), ubic:'Esquina' },
+    { lote:'M1-L13', manzana:'1', m2:200,    etapa:'3', estatus:'disponible', precio: Math.round(200*2145) },
+    { lote:'M1-L14', manzana:'1', m2:200,    etapa:'3', estatus:'disponible', precio: Math.round(200*2145) },
+    { lote:'M1-L15', manzana:'1', m2:200,    etapa:'3', estatus:'disponible', precio: Math.round(200*2145) },
+    { lote:'M1-L16', manzana:'1', m2:200,    etapa:'3', estatus:'disponible', precio: Math.round(200*2145) },
+    { lote:'M1-L17', manzana:'1', m2:200,    etapa:'3', estatus:'disponible', precio: Math.round(200*2145) },
+    { lote:'M1-L18', manzana:'1', m2:200,    etapa:'3', estatus:'disponible', precio: Math.round(200*2145) },
+    { lote:'M1-L19', manzana:'1', m2:200,    etapa:'3', estatus:'disponible', precio: Math.round(200*2145) },
+    { lote:'M1-L20', manzana:'1', m2:200,    etapa:'3', estatus:'disponible', precio: Math.round(200*2145) },
+    { lote:'M1-L21', manzana:'1', m2:200,    etapa:'3', estatus:'disponible', precio: Math.round(200*2145) },
+    { lote:'M1-L22', manzana:'1', m2:200,    etapa:'3', estatus:'disponible', precio: Math.round(200*2145) },
+    { lote:'M1-L23', manzana:'1', m2:200,    etapa:'4', estatus:'disponible', precio: Math.round(200*2359.5) },
+    { lote:'M1-L24', manzana:'1', m2:236.13, etapa:'4', estatus:'disponible', precio: Math.round(236.13*2359.5), ubic:'Esquina' },
+    // Manzana 2
+    { lote:'M2-L01', manzana:'2', m2:309.06, etapa:'4', estatus:'vendido',    precio: Math.round(309.06*2359.5) },
+    { lote:'M2-L02', manzana:'2', m2:200,    etapa:'4', estatus:'vendido',    precio: Math.round(200*2359.5) },
+    { lote:'M2-L03', manzana:'2', m2:200,    etapa:'4', estatus:'vendido',    precio: Math.round(200*2359.5) },
+    { lote:'M2-L04', manzana:'2', m2:200,    etapa:'4', estatus:'disponible', precio: Math.round(200*2359.5) },
+    { lote:'M2-L05', manzana:'2', m2:200,    etapa:'4', estatus:'disponible', precio: Math.round(200*2359.5) },
+    { lote:'M2-L06', manzana:'2', m2:200,    etapa:'4', estatus:'disponible', precio: Math.round(200*2359.5) },
+    { lote:'M2-L07', manzana:'2', m2:200,    etapa:'4', estatus:'disponible', precio: Math.round(200*2359.5) },
+    { lote:'M2-L08', manzana:'2', m2:200,    etapa:'4', estatus:'disponible', precio: Math.round(200*2359.5) },
+    { lote:'M2-L09', manzana:'2', m2:200,    etapa:'4', estatus:'disponible', precio: Math.round(200*2359.5) },
+    { lote:'M2-L10', manzana:'2', m2:200,    etapa:'4', estatus:'disponible', precio: Math.round(200*2359.5) },
+    { lote:'M2-L11', manzana:'2', m2:400,    etapa:'5', estatus:'disponible', precio: Math.round(400*2595), ubic:'Esquina' },
+    { lote:'M2-L12', manzana:'2', m2:400,    etapa:'5', estatus:'disponible', precio: Math.round(400*2595), ubic:'Esquina' },
+    { lote:'M2-L13', manzana:'2', m2:200,    etapa:'5', estatus:'disponible', precio: Math.round(200*2595) },
+    { lote:'M2-L14', manzana:'2', m2:200,    etapa:'5', estatus:'disponible', precio: Math.round(200*2595) },
+    { lote:'M2-L15', manzana:'2', m2:200,    etapa:'5', estatus:'disponible', precio: Math.round(200*2595) },
+    { lote:'M2-L16', manzana:'2', m2:200,    etapa:'5', estatus:'disponible', precio: Math.round(200*2595) },
+    { lote:'M2-L17', manzana:'2', m2:200,    etapa:'5', estatus:'disponible', precio: Math.round(200*2595) },
+    { lote:'M2-L18', manzana:'2', m2:200,    etapa:'5', estatus:'disponible', precio: Math.round(200*2595) },
+    { lote:'M2-L19', manzana:'2', m2:200,    etapa:'5', estatus:'disponible', precio: Math.round(200*2595) },
+    { lote:'M2-L20', manzana:'2', m2:200,    etapa:'5', estatus:'disponible', precio: Math.round(200*2595) },
+    { lote:'M2-L21', manzana:'2', m2:49.46,  etapa:'5', estatus:'disponible', precio: Math.round(49.46*2595) },
+    { lote:'M2-L22', manzana:'2', m2:458.24, etapa:'5', estatus:'disponible', precio: Math.round(458.24*2595), ubic:'Esquina/Premium' },
+  ];
+  lotes.forEach(l => addLote(l));
+
+  // --- SECCIÓN 3: ETAPAS (reemplazar defaults con datos reales) ---
+  // Etapas ya inicializadas por initEtapas — solo actualizamos con datos reales
+  // Multiplicadores: 36m=1.09x, 72m=1.33x (del Excel)
+  const etapaCards = document.querySelectorAll('#etapas-container .etapa-card');
+  const etapaData = [
+    { nombre:'Etapa 1 — Lanzamiento', lotes:5, contado:390000, e36:425100, e72:518700, enganche:10, status:'Completada', incremento:0, tasa1:3, tasa2:8 },
+    { nombre:'Etapa 2 — Precio Base',  lotes:13, contado:390000, e36:Math.round(390000*1.09), e72:Math.round(390000*1.33), enganche:10, status:'Activa', incremento:0, tasa1:3, tasa2:8 },
+    { nombre:'Etapa 3',               lotes:10, contado:429000, e36:Math.round(429000*1.09), e72:Math.round(429000*1.33), enganche:10, status:'Próxima', incremento:10, tasa1:3, tasa2:8 },
+    { nombre:'Etapa 4',               lotes:13, contado:471900, e36:Math.round(471900*1.09), e72:Math.round(471900*1.33), enganche:10, status:'Futura', incremento:10, tasa1:3, tasa2:8 },
+    { nombre:'Etapa 5 — Cierre',      lotes:10, contado:519000, e36:Math.round(519000*1.09), e72:Math.round(519000*1.33), enganche:10, status:'Futura', incremento:10, tasa1:3, tasa2:8 },
+  ];
+  // Note: The defaultEtapas in initEtapas already have approximate data.
+  // We update them with the real ALURA values:
+  etapaCards.forEach((card, i) => {
+    const d = etapaData[i];
+    if (!d) return;
+    card.querySelector('input[type="text"]').value = d.nombre;
+    card.querySelector('.e-lotes').value = d.lotes;
+    card.querySelector('.e-enganche').value = d.enganche;
+    card.querySelector('.e-incr').value = d.incremento;
+    card.querySelector('.e-contado').value = d.contado;
+    card.querySelector('.e-36m').value = d.e36;
+    card.querySelector('.e-72m').value = d.e72;
+    card.querySelector('.e-tasa1').value = d.tasa1;
+    card.querySelector('.e-tasa2').value = d.tasa2;
+    const sel = card.querySelector('select');
+    if (sel) sel.value = d.status;
+  });
+
+  // --- SECCIÓN 4: COSTOS (datos reales del Excel PROYECCION DE COSTOS) ---
+  const costosRows = document.querySelectorAll('#costos-body tr');
+  // Map real costs to rows by index (matching initCostos defaultCostos order)
+  const realCostos = [
+    { total: 0, ejercido: 0 },          // Terreno (valor comunal, no pagado en efectivo)
+    { total: 30000, ejercido: 30000 },   // Acta de posesión
+    { total: 49000, ejercido: 49000 },   // Topografía
+    { total: 250000+58300+133826, ejercido: 250000+58300+133826 }, // Permisos (plano+CUS+municipal)
+    { total: 0, ejercido: 0 },          // Proyecto ejecutivo
+    { total: 1600000, ejercido: 0 },    // Luz subterránea
+    { total: 0, ejercido: 0 },          // CFE
+    { total: 0, ejercido: 0 },          // Pozo
+    { total: 0, ejercido: 0 },          // CONAGUA
+    { total: 0, ejercido: 0 },          // Pavimentación
+    { total: 0, ejercido: 0 },          // Banquetas/guarniciones
+    { total: 0, ejercido: 0 },          // Alumbrado
+    { total: 0, ejercido: 0 },          // Fachada
+    { total: 0, ejercido: 0 },          // Palapa
+    { total: 0, ejercido: 0 },          // Marketing
+    { total: 0, ejercido: 0 },          // Renders
+    { total: 0, ejercido: 0 },          // Evento apertura
+    { total: 0, ejercido: 0 },          // Comisiones (10% de ingresos)
+    { total: 0, ejercido: 0 },          // Notarial
+    { total: 0, ejercido: 0 },          // Nómina
+    { total: 0, ejercido: 0 },          // Imprevistos
+  ];
+  let dataIdx = 0;
+  costosRows.forEach(row => {
+    const totalInput = row.querySelector('.c-total');
+    const ejercidoInput = row.querySelector('.c-ejercido');
+    if (totalInput && ejercidoInput && dataIdx < realCostos.length) {
+      totalInput.value = realCostos[dataIdx].total;
+      ejercidoInput.value = realCostos[dataIdx].ejercido;
+      updateCostoPendiente(totalInput);
+      dataIdx++;
+    }
+  });
+
+  // --- SECCIÓN 5: VENTAS REALIZADAS (del Excel ACTIVOS Y FINIQUITOS) ---
+  const ventasData = [
+    { lote:'M1-L01', m2:323.41, lista:Math.round(323.41*1950), cierre:390000, fecha:'2026-02-01', esquema:'48m', enganche:200000, mensual:19000, saldo:190000, pago:'corriente', asesor:'Jessica/Selena' },
+    { lote:'M1-L11', m2:400,    lista:Math.round(400*1950),    cierre:702000, fecha:'2026-02-05', esquema:'48m', enganche:234000, mensual:9750, saldo:468000, pago:'corriente', asesor:'Jessica/Azalia' },
+    { lote:'M1-L12', m2:400,    lista:Math.round(400*1950),    cierre:0,      fecha:'2025-12-29', esquema:'contado', enganche:5000, mensual:0, saldo:0, pago:'corriente', asesor:'Apartado' },
+    { lote:'M2-L01', m2:309.06, lista:Math.round(309.06*2359.5),cierre:602667,fecha:'2026-02-16', esquema:'48m', enganche:10223, mensual:12605, saldo:592444, pago:'corriente', asesor:'Jessica/Montserrat' },
+    { lote:'M2-L02', m2:200,    lista:Math.round(200*2359.5),  cierre:390000, fecha:'2026-02-07', esquema:'48m', enganche:8715, mensual:8112, saldo:381285, pago:'corriente', asesor:'Jessica/Montserrat' },
+    { lote:'M2-L03', m2:200,    lista:Math.round(200*2359.5),  cierre:390000, fecha:'2026-02-20', esquema:'48m', enganche:39000, mensual:7312, saldo:351000, pago:'corriente', asesor:'Sinai/Montse' },
+  ];
+  ventasData.forEach(v => addVenta(v));
+
+  // --- SECCIÓN 6: POLÍTICA COMERCIAL ---
+  document.getElementById('com-enganche').value = 10;
+  document.getElementById('com-plazo-max').value = 72;
+  document.getElementById('com-dscto-contado').value = 5;
+  document.getElementById('com-margen').value = 3;
+  document.getElementById('com-apartado').value = 5000;
+  document.getElementById('com-vg-apartado').value = 30;
+  document.getElementById('com-comi-int').value = 3;
+  document.getElementById('com-comi-ext').value = 5;
+  document.getElementById('com-mora').value = 2;
+  document.getElementById('com-asesores-int').value = 2;
+  document.getElementById('com-asesores-ext').value = 3;
+  document.getElementById('com-marketing').value = 15000;
+}
+
+// ==================== INIT ====================
+function init() {
+  initEtapas();
+  initCostos();
+  initPermisos();
+  initObra();
+  initHistorial();
+  loadALURAData();
+  // Format money inputs after a tick (allows DOM to settle)
+  requestAnimationFrame(() => requestAnimationFrame(formatAllMoneyInputs));
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  init();
+  setTimeout(() => {
+    initProjectSystem();
+    buildQRSelector();
+    buildComparativo();
+    formatAllMoneyInputs();
+  }, 200);
+});
+
+// ==================== PDF / EXPORT ====================
+function openPdfModal() {
+  document.getElementById('pdf-modal-overlay').style.display='block';
+  document.getElementById('pdf-modal').style.display='block';
+}
+function closePdfModal() {
+  document.getElementById('pdf-modal-overlay').style.display='none';
+  document.getElementById('pdf-modal').style.display='none';
+}
+
+function downloadPDF(tipo) {
+  closePdfModal();
+  const conLogo = document.getElementById('pdf-logo-toggle')?.checked !== false;
+  const conFecha = document.getElementById('pdf-fecha-toggle')?.checked !== false;
+  const nombre = document.getElementById('g-nombre')?.value || 'Proyecto';
+  const fecha = new Date().toLocaleDateString('es-MX',{year:'numeric',month:'long',day:'numeric'});
+
+  const logoHTML = conLogo ? `
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:8px;">
+      <div style="width:52px;height:52px;background:#134289;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <span style="color:#fff;font-weight:900;font-size:20px;letter-spacing:-1px;">LG</span>
+      </div>
+      <div>
+        <div style="font-size:22px;font-weight:900;color:#134289;letter-spacing:2px;font-family:'Playfair Display',serif;">LUNA GI</div>
+        <div style="font-size:10px;letter-spacing:3px;color:#8a9ab5;text-transform:uppercase;">Grupo Inmobiliario</div>
+      </div>
+    </div>` : '';
+
+  let sections = '';
+  if (tipo === 'reporte' || tipo === 'todo') {
+    generateReport();
+    sections += document.getElementById('report-content')?.innerHTML || '';
+  }
+  if (tipo === 'flujo' || tipo === 'todo') {
+    buildFlujoCaja();
+    const el = document.getElementById('flujo-content');
+    if (el) sections += '<div style="page-break-before:always;margin-top:32px;"><h2 style="font-family:Playfair Display,serif;color:#134289;margin-bottom:20px;">Flujo de Caja Proyectado</h2>' + el.innerHTML + '</div>';
+  }
+  if (tipo === 'todo') {
+    buildSimulador();
+    const el = document.getElementById('simulador-content');
+    if (el) sections += '<div style="page-break-before:always;margin-top:32px;"><h2 style="font-family:Playfair Display,serif;color:#134289;margin-bottom:20px;">Simulador de Escenarios</h2>' + el.innerHTML + '</div>';
+  }
+
+  const fechaHTML = conFecha ? `<div style="margin-top:40px;padding-top:14px;border-top:1px solid #ccd7e5;font-size:10px;color:#8a9ab5;display:flex;justify-content:space-between;"><span>Luna Grupo Inmobiliario · ${nombre}</span><span>Generado el ${fecha}</span></div>` : '';
+
+  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8">
+  <title>${nombre} — Reporte Luna GI</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'DM Sans',sans-serif;color:#000;padding:40px;font-size:13px;line-height:1.5;}
+    h1,h2,h3{font-family:'Playfair Display',serif;}
+    .pdf-header{border-bottom:3px solid #134289;padding-bottom:20px;margin-bottom:28px;}
+    .pdf-title{font-size:26px;font-weight:700;color:#134289;margin-top:12px;font-family:'Playfair Display',serif;}
+    .pdf-sub{font-size:12px;color:#8a9ab5;letter-spacing:2px;text-transform:uppercase;margin-top:4px;}
+    .metrics-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px;}
+    .metric-card{border:1px solid #ccd7e5;padding:14px;border-radius:4px;border-top:3px solid #134289;}
+    .metric-card.green{border-top-color:#007bbb;}.metric-card.red{border-top-color:#c0392b;}.metric-card.blue{border-top-color:#134289;}
+    .metric-label{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#4a6080;margin-bottom:6px;}
+    .metric-value{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;}
+    .metric-sub{font-size:11px;color:#8a9ab5;}
+    .report-section{border:1px solid #ccd7e5;border-radius:4px;margin-bottom:16px;overflow:hidden;}
+    .report-section-header{background:#134289;color:#fff;padding:10px 18px;}
+    .report-section-title{font-family:'Playfair Display',serif;font-size:13px;font-weight:700;color:#fff;}
+    .report-section-body{padding:16px 18px;}
+    .stat-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #eef3f8;font-size:12px;}
+    .stat-name{color:#4a6080;}.stat-val{font-weight:600;}
+    .stat-val.pos{color:#007bbb;}.stat-val.neg{color:#c0392b;}.stat-val.gold{color:#134289;}
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+    table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:12px;}
+    th{background:#134289;color:#fff;padding:7px 10px;text-align:right;font-size:9px;letter-spacing:1px;text-transform:uppercase;}
+    th:first-child{text-align:left;}td{padding:7px 10px;border-bottom:1px solid #eef3f8;text-align:right;}
+    td:first-child{text-align:left;}tr.total-row td{background:#134289;color:#fff;font-weight:700;}
+    .etapas-report-table th{background:#eef3f8;color:#4a6080;}.etapas-report-table tr.total-row td{background:#134289;color:#fff;}
+    .alert{padding:10px 14px;border-radius:3px;font-size:12px;margin-bottom:10px;border-left:4px solid;}
+    .alert.success{background:#dbeeff;border-color:#134289;color:#0a2a5e;}
+    .alert.warning{background:#e8f4fb;border-color:#007bbb;color:#134289;}
+    .progress-bar{height:6px;background:#eef3f8;border-radius:4px;overflow:hidden;margin-top:4px;}
+    .progress-fill{height:100%;background:#134289;border-radius:4px;}.progress-fill.green{background:#007bbb;}
+    .flujo-kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
+    .flujo-kpi-card{border:1px solid #ccd7e5;padding:12px;border-radius:4px;border-top:3px solid #134289;}
+    .flujo-kpi-label{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:#4a6080;margin-bottom:4px;}
+    .flujo-kpi-val{font-size:18px;font-weight:700;font-family:'Playfair Display',serif;}
+    .flujo-table th{background:#134289;color:#fff;padding:6px 8px;font-size:9px;text-align:right;}
+    .flujo-table th:first-child{text-align:left;}
+    .flujo-table td{padding:5px 8px;font-size:11px;text-align:right;}
+    .flujo-table td:first-child{text-align:left;}
+    .flujo-table tr.flujo-positivo td{background:#dbeeff;}
+    .flujo-table tr.flujo-negativo td{background:#fce4ec;}
+    .flujo-table tr.flujo-break td{background:#134289;color:#fff;font-weight:700;}
+    .card{background:#fff;border:1px solid #ccd7e5;border-radius:4px;padding:20px;margin-bottom:16px;}
+    @media print{body{padding:20px;}@page{margin:12mm;size:A4;}}
+  </style></head><body>
+  <div class="pdf-header">${logoHTML}
+    <div class="pdf-title">${nombre} — Reporte de Inversión</div>
+    <div class="pdf-sub">Luna Grupo Inmobiliario · Puerto Escondido, Oaxaca</div>
+  </div>
+  ${sections}
+  ${fechaHTML}
+  <script>window.onload=()=>setTimeout(()=>window.print(),500);<\/script>
+  </body></html>`;
+
+  const blob = new Blob([html],{type:'text/html'});
+  const url = URL.createObjectURL(blob);
+  const win = window.open(url,'_blank');
+  if (!win) { const a=document.createElement('a'); a.href=url; a.download=`${nombre}_Reporte_LunaGI.html`; a.click(); }
+  setTimeout(()=>URL.revokeObjectURL(url),5000);
+}
+
+// ==================== FLUJO DE CAJA ====================
+function buildFlujoCaja() {
+  const etapaCards = document.querySelectorAll('#etapas-container .etapa-card');
+  const etapas = [];
+  etapaCards.forEach(card => {
+    etapas.push({
+      lotes: parseFloat(card.querySelector('.e-lotes')?.value)||0,
+      contado: parseFloat(String(card.querySelector('.e-contado')?.value||'0').replace(/,/g,''))||0,
+      e72: parseFloat(String(card.querySelector('.e-72m')?.value||'0').replace(/,/g,''))||0,
+      enganche: parseFloat(card.querySelector('.e-enganche')?.value)||10,
+    });
+  });
+  const totalLotesEtapas = etapas.reduce((s,e)=>s+e.lotes,0);
+  const ventasMes = parseInt(document.getElementById('flujo-ventas-mes')?.value)||3;
+  const horizonte = parseInt(document.getElementById('flujo-horizonte')?.value)||24;
+  const inicio = document.getElementById('flujo-inicio')?.value || '2026-01';
+  const pctContado = 0.30, pctCredito = 0.70;
+  let totalCostos=0;
+  document.querySelectorAll('#costos-body tr').forEach(r=>{totalCostos+=parseFloat(String(r.querySelector('.c-total')?.value||'0').replace(/,/g,''))||0;});
+
+  const avgPrecioContado = totalLotesEtapas>0 ? etapas.reduce((s,e)=>s+(e.contado*e.lotes),0)/totalLotesEtapas : 390000;
+  const avgEnganche = 0.10;
+  const plazoCredito = 48;
+  const mensualidadPromedio = (avgPrecioContado*(1-avgEnganche))/plazoCredito;
+  const engancheMonto = avgPrecioContado*avgEnganche;
+
+  let costoMensual = totalCostos/Math.max(horizonte,1);
+  let saldoAcum = -(totalCostos*0.3);
+  let breakEven=null, ventasAcum=0, rows='', kpiIng=0, kpiEgr=0;
+  const startDate = new Date(inicio+'-01');
+
+  for(let m=0;m<horizonte;m++){
+    const d = new Date(startDate); d.setMonth(d.getMonth()+m);
+    const mesLabel = d.toLocaleDateString('es-MX',{month:'short',year:'numeric'});
+    const ventasMesActual = Math.min(ventasMes,Math.max(0,totalLotesEtapas-ventasAcum));
+    ventasAcum+=ventasMesActual;
+    const ingresoEnganches = ventasMesActual*pctContado*avgPrecioContado + ventasMesActual*pctCredito*engancheMonto;
+    const ingresoMensualidades = ventasAcum*pctCredito*mensualidadPromedio*(m>0?1:0);
+    const ingresoTotal = ingresoEnganches+ingresoMensualidades;
+    const factorCosto = m<6?1.6:m<12?1.1:0.5;
+    const egresoMes = totalCostos>0 ? Math.min(costoMensual*factorCosto, totalCostos*0.7/horizonte*factorCosto) : 0;
+    saldoAcum+=ingresoTotal-egresoMes;
+    kpiIng+=ingresoTotal; kpiEgr+=egresoMes;
+    const isBreak = breakEven===null&&saldoAcum>0;
+    if(isBreak) breakEven=mesLabel;
+    const cls = isBreak?'flujo-break':saldoAcum>0?'flujo-positivo':'flujo-negativo';
+    rows+=`<tr class="${cls}"><td>${mesLabel}${isBreak?' 📍':''}</td><td>${ventasMesActual}</td><td>${fmtMXN(ingresoEnganches)}</td><td>${fmtMXN(ingresoMensualidades)}</td><td>${fmtMXN(ingresoTotal)}</td><td>${fmtMXN(egresoMes)}</td><td>${fmtMXN(ingresoTotal-egresoMes)}</td><td style="font-weight:700;${saldoAcum>0?'color:#134289':'color:#c0392b'}">${fmtMXN(saldoAcum)}</td></tr>`;
+  }
+
+  document.getElementById('flujo-content').innerHTML=`
+    <div class="flujo-kpi">
+      <div class="flujo-kpi-card"><div class="flujo-kpi-label">Ingreso Total Proyectado</div><div class="flujo-kpi-val" style="color:#134289">${fmtMXN(kpiIng)}</div></div>
+      <div class="flujo-kpi-card"><div class="flujo-kpi-label">Egreso Total Proyectado</div><div class="flujo-kpi-val" style="color:#c0392b">${fmtMXN(kpiEgr)}</div></div>
+      <div class="flujo-kpi-card"><div class="flujo-kpi-label">Resultado Neto</div><div class="flujo-kpi-val" style="color:${kpiIng-kpiEgr>0?'#007bbb':'#c0392b'}">${fmtMXN(kpiIng-kpiEgr)}</div></div>
+      <div class="flujo-kpi-card" style="border-top-color:#007bbb"><div class="flujo-kpi-label">📍 Punto de Recuperación</div><div class="flujo-kpi-val" style="color:#007bbb;font-size:15px;">${breakEven||'Fuera del horizonte'}</div></div>
+    </div>
+    <div class="card" style="padding:0;overflow-x:auto;">
+      <table class="flujo-table"><thead><tr>
+        <th style="text-align:left;">Mes</th><th>Ventas</th><th>Enganches</th><th>Mensualidades</th><th>Ingreso Total</th><th>Egresos</th><th>Flujo Neto</th><th>Saldo Acum.</th>
+      </tr></thead><tbody>${rows}</tbody></table>
+    </div>
+    <div style="margin-top:10px;font-size:11px;color:var(--muted);">🟦 Mes de recuperación &nbsp;|&nbsp; 30% contado / 70% crédito · Enganche 10% · Plazo 48 meses</div>`;
+}
+
+// ==================== SIMULADOR ====================
+function buildSimulador() {
+  const etapaCards = document.querySelectorAll('#etapas-container .etapa-card');
+  const etapas=[];
+  etapaCards.forEach((card,i)=>{
+    etapas.push({
+      nombre: card.querySelector('input[type="text"]')?.value||`Etapa ${i+1}`,
+      lotes: parseFloat(card.querySelector('.e-lotes')?.value)||0,
+      contado: parseFloat(String(card.querySelector('.e-contado')?.value||'0').replace(/,/g,''))||0,
+      e72: parseFloat(String(card.querySelector('.e-72m')?.value||'0').replace(/,/g,''))||0,
+    });
+  });
+  const pctContadoA = parseInt(document.getElementById('sim-pct-contado')?.value)||30;
+  const incrA = parseInt(document.getElementById('sim-incremento')?.value)||10;
+  const scenarios=[
+    {label:'Escenario A — Tu mix actual',pctContado:pctContadoA/100,incr:incrA/100,color:'#134289'},
+    {label:'Escenario B — Todo contado (flujo rápido)',pctContado:1,incr:incrA/100,color:'#007bbb'},
+    {label:'Escenario C — Todo crédito 72m (ingreso máximo)',pctContado:0,incr:incrA/100,color:'#4a6080'},
+  ];
+  let html='';
+  scenarios.forEach(sc=>{
+    let ing=0,ingC=0,ingD=0,rows='';
+    etapas.forEach((e,i)=>{
+      const pc=e.contado*(i>0?Math.pow(1+sc.incr,1):1);
+      const p72=e.e72*(i>0?Math.pow(1+sc.incr,1):1);
+      const lC=Math.round(e.lotes*sc.pctContado), lD=e.lotes-lC;
+      const iC=lC*pc, iD=lD*p72, iT=iC+iD;
+      ing+=iT; ingC+=iC; ingD+=iD;
+      rows+=`<tr><td>${e.nombre}</td><td style="text-align:right;">${e.lotes}</td><td style="text-align:right;">${lC}/${lD}</td><td style="text-align:right;">${fmtMXN(pc)}</td><td style="text-align:right;">${fmtMXN(p72)}</td><td style="text-align:right;font-weight:700;">${fmtMXN(iT)}</td></tr>`;
+    });
+    html+=`<div class="card" style="border-left:4px solid ${sc.color};margin-bottom:16px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+        <div style="width:12px;height:12px;border-radius:50%;background:${sc.color};flex-shrink:0;"></div>
+        <strong style="font-size:15px;">${sc.label}</strong>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;">
+        <div style="background:var(--paper);padding:12px;border-radius:4px;text-align:center;">
+          <div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);">Ingreso Total</div>
+          <div style="font-size:20px;font-weight:700;color:${sc.color};font-family:'Playfair Display',serif;">${fmtMXN(ing)}</div>
+        </div>
+        <div style="background:var(--paper);padding:12px;border-radius:4px;text-align:center;">
+          <div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);">Por Contado</div>
+          <div style="font-size:18px;font-weight:700;color:#134289;font-family:'Playfair Display',serif;">${fmtMXN(ingC)}</div>
+        </div>
+        <div style="background:var(--paper);padding:12px;border-radius:4px;text-align:center;">
+          <div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);">Por Crédito (72m)</div>
+          <div style="font-size:18px;font-weight:700;color:#007bbb;font-family:'Playfair Display',serif;">${fmtMXN(ingD)}</div>
+        </div>
+      </div>
+      <div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:12px;">
+        <thead><tr>
+          <th style="text-align:left;">Etapa</th><th style="text-align:right;">Lotes</th><th style="text-align:right;">Cont./Créd.</th><th style="text-align:right;">P. Contado</th><th style="text-align:right;">P. 72m</th><th style="text-align:right;">Ingreso</th>
+        </tr></thead><tbody>${rows}</tbody></table></div>
+    </div>`;
+  });
+  document.getElementById('simulador-content').innerHTML=html;
+}
+
+// ==================== COBRANZA ====================
+function buildCobranza() {
+  const ventaRows = document.querySelectorAll('#ventas-body tr');
+  let corriente=0,atrasado=0,cancelado=0,ingresoMensual=0,totalCartera=0,cards='';
+  ventaRows.forEach(row=>{
+    const inputs=row.querySelectorAll('input');
+    const selects=row.querySelectorAll('select');
+    if(inputs.length<8) return;
+    const lote=inputs[0]?.value||'—', m2=inputs[1]?.value||'—';
+    const cierre=parseFloat(inputs[3]?.value)||0;
+    const enganche=parseFloat(inputs[6]?.value)||0;
+    const mensual=parseFloat(inputs[7]?.value)||0;
+    const saldo=parseFloat(inputs[8]?.value)||0;
+    const asesor=inputs[9]?.value||'—';
+    const esquema=selects[0]?.value||'—';
+    const pagoSel=selects[1]?.value||'corriente';
+    if(!cierre&&!mensual) return;
+    totalCartera+=saldo; ingresoMensual+=mensual;
+    if(pagoSel==='corriente') corriente++; else if(pagoSel==='atraso') atrasado++; else cancelado++;
+    const borderColor=pagoSel==='corriente'?'#007bbb':pagoSel==='atraso'?'#c0392b':'#f0b429';
+    const semLabel=pagoSel==='corriente'?'🟢 Al corriente':pagoSel==='atraso'?'🔴 En atraso':'⚫ Cancelado';
+    cards+=`<div style="background:#fff;border:1px solid var(--border);border-radius:4px;padding:16px;margin-bottom:12px;border-left:4px solid ${borderColor};">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <div><div style="font-weight:700;font-size:15px;">Lote ${lote} · ${m2} m²</div>
+        <div style="font-size:12px;color:var(--muted);">Asesor: ${asesor} · ${esquema}</div></div>
+        <div style="font-weight:700;font-size:13px;color:${borderColor};">${semLabel}</div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
+        <div style="background:var(--paper);padding:10px;border-radius:3px;text-align:center;"><div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);">Precio Cierre</div><div style="font-weight:700;color:#134289;">${fmtMXN(cierre)}</div></div>
+        <div style="background:var(--paper);padding:10px;border-radius:3px;text-align:center;"><div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);">Enganche</div><div style="font-weight:700;color:#134289;">${fmtMXN(enganche)}</div></div>
+        <div style="background:var(--paper);padding:10px;border-radius:3px;text-align:center;"><div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);">Mensualidad</div><div style="font-weight:700;color:#007bbb;">${fmtMXN(mensual)}</div></div>
+        <div style="background:var(--paper);padding:10px;border-radius:3px;text-align:center;"><div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);">Saldo Pendiente</div><div style="font-weight:700;color:${saldo>0?'#c0392b':'#007bbb'}">${fmtMXN(saldo)}</div></div>
+      </div></div>`;
+  });
+  const kpis=`<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;">
+    <div class="flujo-kpi-card"><div class="flujo-kpi-label">🟢 Al Corriente</div><div class="flujo-kpi-val" style="color:#007bbb">${corriente}</div></div>
+    <div class="flujo-kpi-card"><div class="flujo-kpi-label">🔴 En Atraso</div><div class="flujo-kpi-val" style="color:#c0392b">${atrasado}</div></div>
+    <div class="flujo-kpi-card"><div class="flujo-kpi-label">Ingreso Mensual Garantizado</div><div class="flujo-kpi-val" style="color:#134289;font-size:18px;">${fmtMXN(ingresoMensual)}</div></div>
+    <div class="flujo-kpi-card"><div class="flujo-kpi-label">Cartera Total Pendiente</div><div class="flujo-kpi-val" style="color:#134289;font-size:18px;">${fmtMXN(totalCartera)}</div></div>
+  </div>`;
+  document.getElementById('cobranza-content').innerHTML=kpis+(cards||'<div class="card" style="text-align:center;color:var(--muted);padding:40px;">Sin ventas registradas</div>');
+}
+
+// ==================== PUNTO DE EQUILIBRIO ====================
+function buildEquilibrio() {
+  const etapaCards=document.querySelectorAll('#etapas-container .etapa-card');
+  let totalLotes=0,avgPrecio=0,count=0;
+  etapaCards.forEach(card=>{
+    const l=parseFloat(card.querySelector('.e-lotes')?.value)||0;
+    const p=parseFloat(String(card.querySelector('.e-contado')?.value||'0').replace(/,/g,''))||0;
+    totalLotes+=l; avgPrecio+=p; count++;
+  });
+  avgPrecio=count>0?avgPrecio/count:390000;
+
+  const categorias=[
+    {nombre:'A. Activo Base',concepto:'Terreno, acta, honorarios',color:'#134289'},
+    {nombre:'B. Preoperativos',concepto:'Topografía, permisos, diseño',color:'#007bbb'},
+    {nombre:'C. Urbanización',concepto:'Luz, agua, pavimentación, fachada',color:'#4a6080'},
+    {nombre:'D. Comercialización',concepto:'Marketing, renders, evento',color:'#8a9ab5'},
+    {nombre:'E. Ventas y Operación',concepto:'Comisiones, notarial, nómina',color:'#c0392b'},
+    {nombre:'F. Imprevistos',concepto:'Contingencia 5-10%',color:'#f0b429'},
+  ];
+  let costosPorCat=[0,0,0,0,0,0],catIdx=-1;
+  document.querySelectorAll('#costos-body tr').forEach(row=>{
+    if(row.querySelector('td[colspan="5"]')){catIdx=Math.min(catIdx+1,5);return;}
+    const val=parseFloat(String(row.querySelector('.c-total')?.value||'0').replace(/,/g,''))||0;
+    if(catIdx>=0) costosPorCat[catIdx]+=val;
+  });
+  const totalCostos=costosPorCat.reduce((a,b)=>a+b,0);
+  let acum=0,bars='';
+  categorias.forEach((cat,i)=>{
+    acum+=costosPorCat[i];
+    const lotesNec=avgPrecio>0?Math.ceil(acum/avgPrecio):0;
+    const pct=totalLotes>0?Math.min((lotesNec/totalLotes)*100,100):0;
+    bars+=`<div class="eq-bar-wrap">
+      <div class="eq-bar-label"><span style="font-weight:600;">${cat.nombre} — ${cat.concepto}</span>
+      <span style="color:var(--muted);">${costosPorCat[i]>0?fmtMXN(costosPorCat[i]):'Sin datos'} → <strong style="color:${cat.color}">${lotesNec} lotes acum.</strong></span></div>
+      <div class="eq-bar"><div class="eq-bar-fill" style="width:${pct}%;background:${cat.color};">${pct>12?lotesNec+' lotes':''}</div></div>
+    </div>`;
+  });
+  const totalLotesEq=avgPrecio>0?Math.ceil(totalCostos/avgPrecio):0;
+  document.getElementById('equilibrio-content').innerHTML=`
+    <div class="flujo-kpi" style="grid-template-columns:repeat(3,1fr);">
+      <div class="flujo-kpi-card"><div class="flujo-kpi-label">Costo Total del Proyecto</div><div class="flujo-kpi-val" style="color:#c0392b;">${fmtMXN(totalCostos)}</div></div>
+      <div class="flujo-kpi-card"><div class="flujo-kpi-label">Precio Promedio por Lote</div><div class="flujo-kpi-val">${fmtMXN(avgPrecio)}</div></div>
+      <div class="flujo-kpi-card" style="border-top-color:#007bbb"><div class="flujo-kpi-label">Lotes para Cubrir TODO</div><div class="flujo-kpi-val" style="color:#007bbb">${totalLotesEq} <span style="font-size:14px;">de ${totalLotes}</span></div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">⚖️ Capas Acumuladas de Equilibrio</div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:20px;">Cada barra muestra lotes necesarios para cubrir esa categoría <em>y todas las anteriores</em>.</p>
+      ${bars}
+      ${totalCostos===0?'<div style="color:var(--muted);text-align:center;padding:20px;">Ingresa los costos del proyecto para ver el análisis.</div>':''}
+    </div>`;
+}
+
+// ==================== COMISIONES ====================
+function buildComisiones() {
+  const comiInt=parseFloat(document.getElementById('com-comi-int')?.value)||3;
+  const comiExt=parseFloat(document.getElementById('com-comi-ext')?.value)||5;
+  const ventaRows=document.querySelectorAll('#ventas-body tr');
+  const asesores={};
+  ventaRows.forEach(row=>{
+    const inputs=row.querySelectorAll('input');
+    if(inputs.length<10) return;
+    const lote=inputs[0]?.value||'—', m2=parseFloat(inputs[1]?.value)||0;
+    const cierre=parseFloat(inputs[3]?.value)||0;
+    const asesorRaw=inputs[9]?.value||'';
+    if(!cierre||!asesorRaw) return;
+    asesorRaw.split('/').map(s=>s.trim()).forEach((asesor,idx)=>{
+      if(!asesor) return;
+      if(!asesores[asesor]) asesores[asesor]={ventas:[],totalCierre:0,totalComision:0,tipo:idx===0?'Interno':'Externo'};
+      const pct=idx===0?comiInt:comiExt;
+      const comision=cierre*(pct/100);
+      asesores[asesor].ventas.push({lote,m2,cierre,comision,pct});
+      asesores[asesor].totalCierre+=cierre;
+      asesores[asesor].totalComision+=comision;
+    });
+  });
+  if(Object.keys(asesores).length===0){
+    document.getElementById('comisiones-content').innerHTML='<div class="card" style="text-align:center;color:var(--muted);padding:40px;">Sin ventas con asesor asignado.</div>';return;
+  }
+  let html='';
+  Object.entries(asesores).forEach(([nombre,data])=>{
+    const rows=data.ventas.map(v=>`<tr><td>${v.lote}</td><td style="text-align:right;">${v.m2} m²</td><td style="text-align:right;">${fmtMXN(v.cierre)}</td><td style="text-align:right;">${v.pct}%</td><td style="text-align:right;font-weight:700;color:#007bbb;">${fmtMXN(v.comision)}</td></tr>`).join('');
+    html+=`<div class="card" style="margin-bottom:16px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <div><div style="font-weight:700;font-size:16px;font-family:'Playfair Display',serif;">${nombre}</div>
+        <div style="font-size:12px;color:var(--muted);">Asesor ${data.tipo} · ${data.ventas.length} operaciones</div></div>
+        <div style="text-align:right;"><div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);">Total Comisión</div>
+        <div style="font-size:24px;font-weight:700;color:#007bbb;font-family:'Playfair Display',serif;">${fmtMXN(data.totalComision)}</div></div>
+      </div>
+      <table class="comi-table"><thead><tr><th style="text-align:left;">Lote</th><th>m²</th><th>Precio Cierre</th><th>%</th><th>Comisión</th></tr></thead>
+      <tbody>${rows}<tr class="comi-total"><td>TOTAL</td><td></td><td style="text-align:right;">${fmtMXN(data.totalCierre)}</td><td></td><td style="text-align:right;color:#007bbb;">${fmtMXN(data.totalComision)}</td></tr></tbody></table>
+    </div>`;
+  });
+  document.getElementById('comisiones-content').innerHTML=html;
+}
+
+// ==================== AVANCE DE OBRA ====================
+let obraCount=0;
+function initObra(){
+  if(document.getElementById('obra-body')?.children.length>0) return;
+  const defaults=[
+    {concepto:'Trazo y limpieza',unidad:'m²',cantidad:10387,ejecutado:0,monto:0},
+    {concepto:'Calles (terracería)',unidad:'ml',cantidad:0,ejecutado:0,monto:0},
+    {concepto:'Mojoneras y postes subdivisión',unidad:'pzas',cantidad:0,ejecutado:0,monto:0},
+    {concepto:'Obra civil eléctrica (registros)',unidad:'pzas',cantidad:0,ejecutado:0,monto:0},
+    {concepto:'Mangueras media/baja tensión',unidad:'ml',cantidad:0,ejecutado:1,monto:1600000},
+    {concepto:'Pozo (perforación)',unidad:'m',cantidad:0,ejecutado:0,monto:0},
+    {concepto:'Red hidráulica principal',unidad:'ml',cantidad:0,ejecutado:0,monto:0},
+    {concepto:'Tomas domiciliarias',unidad:'pzas',cantidad:0,ejecutado:0,monto:0},
+    {concepto:'Pavimentación',unidad:'m²',cantidad:3000,ejecutado:0,monto:0},
+    {concepto:'Banquetas y guarniciones',unidad:'ml',cantidad:625,ejecutado:0,monto:0},
+    {concepto:'Alumbrado público',unidad:'pzas',cantidad:20,ejecutado:0,monto:0},
+    {concepto:'Fachada principal de acceso',unidad:'%',cantidad:100,ejecutado:0,monto:0},
+    {concepto:'Palapa / fogatero',unidad:'%',cantidad:100,ejecutado:0,monto:0},
+  ];
+  defaults.forEach(d=>addObraRow(d));
+}
+function addObraRow(data={}){
+  obraCount++;
+  const tbody=document.getElementById('obra-body');
+  if(!tbody) return;
+  const id='obra-'+obraCount;
+  const pct=data.cantidad>0?Math.min(Math.round((data.ejecutado/data.cantidad)*100),100):0;
+  const semColor=pct===0?'#c0392b':pct<50?'#f0b429':pct<100?'#007bbb':'#134289';
+  const semLabel=pct===0?'Sin iniciar':pct<50?'En proceso':pct<100?'Avanzado':'Completo';
+  const row=document.createElement('tr');
+  row.id=id;
+  row.innerHTML=`
+    <td><input type="text" value="${data.concepto||''}" placeholder="Concepto" style="min-width:160px;"></td>
+    <td style="text-align:center;"><input type="text" value="${data.unidad||'m²'}" style="width:50px;text-align:center;"></td>
+    <td style="text-align:right;"><input type="number" value="${data.cantidad||''}" placeholder="0" style="width:80px;text-align:right;" class="obra-total" oninput="updateObraRow(this)"></td>
+    <td style="text-align:right;"><input type="number" value="${data.ejecutado||''}" placeholder="0" style="width:80px;text-align:right;" class="obra-ejec" oninput="updateObraRow(this)"></td>
+    <td class="obra-pct-cell"><div style="font-size:11px;font-weight:700;color:${semColor};margin-bottom:3px;">${pct}%</div><div class="obra-progress"><div class="obra-progress-fill" style="width:${pct}%;background:${semColor};"></div></div></td>
+    <td style="text-align:right;"><input type="number" value="${data.monto||''}" placeholder="0" style="width:100px;text-align:right;"></td>
+    <td style="text-align:center;"><span class="obra-sem" style="color:${semColor};">● ${semLabel}</span></td>
+    <td style="text-align:center;"><input type="date" style="width:120px;"></td>
+    <td><button class="btn-del" onclick="removeRow('${id}')">✕</button></td>`;
+  tbody.appendChild(row);
+}
+function updateObraRow(input){
+  const row=input.closest('tr');
+  const total=parseFloat(row.querySelector('.obra-total')?.value)||0;
+  const ejec=parseFloat(row.querySelector('.obra-ejec')?.value)||0;
+  const pct=total>0?Math.min(Math.round((ejec/total)*100),100):0;
+  const semColor=pct===0?'#c0392b':pct<50?'#f0b429':pct<100?'#007bbb':'#134289';
+  const semLabel=pct===0?'Sin iniciar':pct<50?'En proceso':pct<100?'Avanzado':'Completo';
+  const cell=row.querySelector('.obra-pct-cell');
+  if(cell) cell.innerHTML=`<div style="font-size:11px;font-weight:700;color:${semColor};margin-bottom:3px;">${pct}%</div><div class="obra-progress"><div class="obra-progress-fill" style="width:${pct}%;background:${semColor};"></div></div>`;
+  const sem=row.querySelector('.obra-sem');
+  if(sem){sem.style.color=semColor;sem.textContent=`● ${semLabel}`;}
+}
+
+// ==================== HISTORIAL PRECIOS ====================
+let histCount=0;
+function initHistorial(){
+  const container=document.getElementById('historial-list');
+  if(!container||container.children.length>0) return;
+  addHistorialRow({fecha:'2025-12-01',etapa:'Etapa 1',precioAnterior:1800,precioNuevo:1950,motivo:'Lanzamiento comercial ALURA'});
+  addHistorialRow({fecha:'2026-04-01',etapa:'Etapa 2',precioAnterior:1950,precioNuevo:2145,motivo:'Apertura Etapa 2 — inicio urbanización'});
+}
+function addHistorialRow(data={}){
+  histCount++;
+  const container=document.getElementById('historial-list');
+  if(!container) return;
+  if(histCount===1){
+    const h=document.createElement('div');
+    h.className='hist-row hist-header';
+    h.innerHTML='<span>Fecha</span><span>Etapa</span><span>P. Anterior ($/m²)</span><span>P. Nuevo ($/m²)</span><span>Motivo</span><span style="text-align:center;">Cambio</span><span></span>';
+    container.appendChild(h);
+  }
+  const pct=data.precioAnterior?Math.round(((data.precioNuevo-data.precioAnterior)/data.precioAnterior)*100):0;
+  const id='hist-'+histCount;
+  const div=document.createElement('div');
+  div.id=id; div.className='hist-row';
+  div.innerHTML=`
+    <input type="date" value="${data.fecha||''}" style="width:130px;">
+    <select style="width:100px;">${['Etapa 1','Etapa 2','Etapa 3','Etapa 4','Etapa 5'].map(e=>`<option ${data.etapa===e?'selected':''}>${e}</option>`).join('')}</select>
+    <div class="prefix-input" style="width:100px;"><span class="prefix">$</span><input type="number" value="${data.precioAnterior||''}" placeholder="$/m²" style="width:100px;padding-left:22px;" oninput="recalcHist(this)"></div>
+    <div class="prefix-input" style="width:100px;"><span class="prefix">$</span><input type="number" value="${data.precioNuevo||''}" placeholder="$/m²" style="width:100px;padding-left:22px;" oninput="recalcHist(this)"></div>
+    <input type="text" value="${data.motivo||''}" placeholder="Motivo del cambio..." style="min-width:160px;">
+    <div class="hist-badge" style="font-weight:700;color:${pct>=0?'#007bbb':'#c0392b'};text-align:center;">${pct>=0?'+':''}${pct}%</div>
+    <button class="btn-del" onclick="removeRow('${id}')">✕</button>`;
+  container.appendChild(div);
+}
+function recalcHist(input){
+  const row=input.closest('.hist-row');
+  const nums=row.querySelectorAll('input[type="number"]');
+  const ant=parseFloat(nums[0]?.value)||0, nv=parseFloat(nums[1]?.value)||0;
+  const pct=ant>0?Math.round(((nv-ant)/ant)*100):0;
+  const badge=row.querySelector('.hist-badge');
+  if(badge){badge.style.color=pct>=0?'#007bbb':'#c0392b';badge.textContent=(pct>=0?'+':'')+pct+'%';}
+}
+
+// ==================== COMPARATIVO PROYECTOS ====================
+function buildComparativo(){
+  const el=document.getElementById('comparativo-content');
+  if(!el) return;
+  if(!projects||projects.length===0){
+    el.innerHTML='<div class="card" style="text-align:center;color:var(--muted);padding:40px;">Agrega más proyectos para ver el comparativo.</div>';return;
+  }
+  if(activeProjectId!==null){
+    const idx=projects.findIndex(p=>p.id===activeProjectId);
+    if(idx!==-1) projects[idx].data=snapshotCurrentProject();
+  }
+  const fields=[
+    {label:'Municipio',key:'municipio'},{label:'Tipo',key:'tipo'},{label:'Total Lotes',key:'totalLotes'},
+    {label:'Lotes Vendidos',key:'vendidos'},{label:'Superficie Total',key:'supTotal',fmt:v=>v?Number(v).toLocaleString('es-MX')+' m²':'—'},
+    {label:'Ingreso Bruto Est.',key:'ingreso',fmt:v=>v?fmtMXN(v):'—'},{label:'Gasto Total Est.',key:'gasto',fmt:v=>v?fmtMXN(v):'—'},
+    {label:'Meta Lotes 2026',key:'metaLotes'},{label:'Meta Mensual',key:'metaMes'},
+  ];
+  const headers=projects.map(p=>`<th>${p.name}</th>`).join('');
+  const rows=fields.map(f=>{
+    const cells=projects.map(p=>`<td>${f.fmt?f.fmt(p.data?.[f.key]):(p.data?.[f.key]||'—')}</td>`).join('');
+    return `<tr><td>${f.label}</td>${cells}</tr>`;
+  }).join('');
+  el.innerHTML=`<div class="card" style="overflow-x:auto;">
+    <table class="comp-table"><thead><tr><th style="text-align:left;">Indicador</th>${headers}</tr></thead><tbody>${rows}</tbody></table>
+  </div>`;
+}
+
+// ==================== QR / FICHA LOTE ====================
+function buildQRSelector(){
+  const sel=document.getElementById('qr-lote-sel');
+  if(!sel) return;
+  sel.innerHTML='';
+  document.querySelectorAll('#lotes-body tr').forEach(row=>{
+    const inputs=row.querySelectorAll('input');
+    if(inputs.length<2) return;
+    const lote=inputs[1]?.value;
+    if(!lote) return;
+    const opt=document.createElement('option');
+    opt.value=row.id; opt.textContent=lote;
+    sel.appendChild(opt);
+  });
+  if(sel.options.length>0) buildQRFicha();
+}
+function buildQRFicha(){
+  const selId=document.getElementById('qr-lote-sel')?.value;
+  const row=document.getElementById(selId);
+  if(!row) return;
+  const inputs=row.querySelectorAll('input');
+  const selects=row.querySelectorAll('select');
+  const lote=inputs[1]?.value||'—', manzana=inputs[2]?.value||'—';
+  const m2=parseFloat(inputs[3]?.value)||0;
+  const etapa=selects[0]?.value||'2';
+  const estatus=selects[1]?.value||'disponible';
+  const etapaNum=parseInt(etapa)||2;
+  const etapaCard=document.querySelectorAll('#etapas-container .etapa-card')[etapaNum-1];
+  const contado=parseFloat(etapaCard?.querySelector('.e-contado')?.value)||0;
+  const e72=parseFloat(etapaCard?.querySelector('.e-72m')?.value)||0;
+  const enganchePct=parseFloat(etapaCard?.querySelector('.e-enganche')?.value)||10;
+  const engancheMonto=contado*(enganchePct/100);
+  const mensual48=(contado-engancheMonto)/48;
+  const mensual72=e72>0?(e72-engancheMonto)/72:0;
+  const nombre=document.getElementById('g-nombre')?.value||'Luna GI';
+  const municipio=document.getElementById('g-municipio')?.value||'';
+  const estado=document.getElementById('g-estado')?.value||'';
+  const statusColors={disponible:'#007bbb',vendido:'#c0392b',apartado:'#f0b429',bloqueado:'#8a9ab5'};
+  document.getElementById('qr-ficha-preview').innerHTML=`<div class="ficha-preview">
+    <div class="ficha-header">
+      <div style="font-size:10px;letter-spacing:3px;opacity:0.7;text-transform:uppercase;">Luna Grupo Inmobiliario</div>
+      <div style="font-size:22px;font-weight:900;font-family:'Playfair Display',serif;margin:6px 0;">${nombre}</div>
+      <div style="font-size:12px;opacity:0.8;">${municipio}${estado?', '+estado:''}</div>
+    </div>
+    <div class="ficha-body">
+      <div style="font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:10px;">Información del Lote</div>
+      <div class="ficha-row"><span>Lote</span><strong>${lote}</strong></div>
+      <div class="ficha-row"><span>Manzana</span><strong>${manzana}</strong></div>
+      <div class="ficha-row"><span>Superficie</span><strong>${m2} m²</strong></div>
+      <div class="ficha-row"><span>Etapa</span><strong>Etapa ${etapa}</strong></div>
+      <div class="ficha-row"><span>Estatus</span><strong style="color:${statusColors[estatus]||'#007bbb'};text-transform:capitalize;">${estatus}</strong></div>
+      <div style="margin-top:16px;margin-bottom:8px;font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);">Esquemas de Pago</div>
+      <div class="ficha-price-grid">
+        <div class="ficha-price-box"><div class="ficha-price-label">Contado</div><div class="ficha-price-val">${fmtMXN(contado)}</div></div>
+        <div class="ficha-price-box"><div class="ficha-price-label">48 meses</div><div class="ficha-price-val">${fmtMXN(Math.round(mensual48))}/mes</div></div>
+        <div class="ficha-price-box"><div class="ficha-price-label">72 meses</div><div class="ficha-price-val">${fmtMXN(Math.round(mensual72))}/mes</div></div>
+      </div>
+      <div style="background:#eef3f8;border-radius:4px;padding:10px 14px;margin-top:8px;font-size:12px;color:var(--muted);">
+        Enganche mínimo: <strong style="color:#134289;">${fmtMXN(Math.round(engancheMonto))} (${enganchePct}%)</strong>
+      </div>
+      <div style="margin-top:14px;text-align:center;font-size:10px;color:var(--muted);">Luna Grupo Inmobiliario · lunagi.mx</div>
+    </div>
+  </div>`;
+}
+function downloadQRFicha(){
+  const fichaEl=document.getElementById('qr-ficha-preview');
+  if(!fichaEl) return;
+  const nombre=document.getElementById('g-nombre')?.value||'Proyecto';
+  const selId=document.getElementById('qr-lote-sel')?.value;
+  const row=document.getElementById(selId);
+  const lote=row?.querySelectorAll('input')[1]?.value||'Lote';
+  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Ficha ${lote} — ${nombre}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>*{box-sizing:border-box;margin:0;padding:0;}body{font-family:'DM Sans',sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;background:#eef3f8;padding:20px;}
+  .ficha-preview{max-width:420px;width:100%;background:#fff;border:2px solid #134289;border-radius:6px;overflow:hidden;}
+  .ficha-header{background:#134289;color:#fff;padding:18px 20px;}.ficha-body{padding:18px 20px;}
+  .ficha-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #eef3f8;font-size:13px;}
+  .ficha-price-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:14px 0;}
+  .ficha-price-box{background:#eef3f8;border-radius:4px;padding:10px;text-align:center;}
+  .ficha-price-label{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:#4a6080;}
+  .ficha-price-val{font-size:15px;font-weight:700;color:#134289;margin-top:4px;}
+  @media print{body{background:#fff;}@page{size:A5;margin:8mm;}}</style>
+  </head><body>${fichaEl.innerHTML}<script>window.onload=()=>setTimeout(()=>window.print(),400);<\/script></body></html>`;
+  const blob=new Blob([html],{type:'text/html'});
+  const url=URL.createObjectURL(blob);
+  const win=window.open(url,'_blank');
+  if(!win){const a=document.createElement('a');a.href=url;a.download=`Ficha_${lote}_${nombre}.html`;a.click();}
+  setTimeout(()=>URL.revokeObjectURL(url),5000);
+}
+
+// ==================== EXPORT EXCEL / CSV ====================
+function exportExcel(){
+  const nombre=document.getElementById('g-nombre')?.value||'Proyecto';
+  const bom='\uFEFF';
+  let csv=`LUNA GRUPO INMOBILIARIO — ${nombre}\nInventario de Lotes\n\n`;
+  csv+='Lote,Manzana,m²,Frente,Fondo,Ubicación Especial,Etapa,Estatus,Precio Lista\n';
+  document.querySelectorAll('#lotes-body tr').forEach(row=>{
+    const i=row.querySelectorAll('input'), s=row.querySelectorAll('select');
+    if(i.length<4) return;
+    csv+=[i[1]?.value,i[2]?.value,i[3]?.value,i[4]?.value,i[5]?.value,i[6]?.value,s[0]?.value,s[1]?.value,i[7]?.value].join(',')+'\n';
+  });
+  csv+='\n\nVentas Realizadas\n\n';
+  csv+='Lote,m²,Precio Lista,Precio Cierre,Fecha,Esquema,Enganche,Mensualidad,Saldo Pendiente,Estatus Pago,Asesor\n';
+  document.querySelectorAll('#ventas-body tr').forEach(row=>{
+    const i=row.querySelectorAll('input'), s=row.querySelectorAll('select');
+    if(i.length<8) return;
+    csv+=[i[0]?.value,i[1]?.value,i[2]?.value,i[3]?.value,i[4]?.value,s[0]?.value,i[5]?.value,i[6]?.value,i[7]?.value,s[1]?.value,i[8]?.value].join(',')+'\n';
+  });
+  const blob=new Blob([bom+csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download=`${nombre}_LunaGI.csv`; a.click();
+  URL.revokeObjectURL(url);
+}
+
+</script>
+
+<!-- ==================== MODAL: PDF EXPORT ==================== -->
+<div class="pdf-modal-overlay" id="pdf-modal-overlay" onclick="closePdfModal()"></div>
+<div class="pdf-modal" id="pdf-modal">
+  <div class="pdf-modal-head">
+    <div>
+      <div style="font-size:10px;letter-spacing:3px;opacity:0.7;">LUNA GI · EXPORTAR</div>
+      <div style="font-size:18px;font-weight:700;font-family:'Playfair Display',serif;">Generar PDF</div>
+    </div>
+    <button onclick="closePdfModal()" style="background:none;border:none;color:#fff;font-size:20px;cursor:pointer;">✕</button>
+  </div>
+  <div class="pdf-modal-body">
+    <div class="pdf-toggle">
+      <label class="toggle-switch"><input type="checkbox" id="pdf-logo-toggle" checked><span class="toggle-slider"></span></label>
+      <div>
+        <div style="font-weight:600;font-size:14px;">Incluir logo Luna GI</div>
+        <div style="font-size:12px;color:var(--muted);">Encabezado corporativo en el PDF</div>
+      </div>
+    </div>
+    <div class="pdf-toggle" style="border-top:1px solid var(--border);padding-top:14px;">
+      <label class="toggle-switch"><input type="checkbox" id="pdf-fecha-toggle" checked><span class="toggle-slider"></span></label>
+      <div>
+        <div style="font-weight:600;font-size:14px;">Incluir fecha de generación</div>
+        <div style="font-size:12px;color:var(--muted);">Pie de página con fecha y sello</div>
+      </div>
+    </div>
+    <div style="margin-top:20px;border-top:1px solid var(--border);padding-top:16px;">
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:12px;">Secciones a incluir</div>
+      <div class="pdf-opt" onclick="downloadPDF('reporte')">
+        <span class="pdf-opt-icon">📊</span>
+        <div><div class="pdf-opt-label">Reporte Financiero Completo</div><div class="pdf-opt-sub">KPIs, inventario, etapas, costos y cobranza</div></div>
+      </div>
+      <div class="pdf-opt" onclick="downloadPDF('flujo')">
+        <span class="pdf-opt-icon">📅</span>
+        <div><div class="pdf-opt-label">Flujo de Caja Proyectado</div><div class="pdf-opt-sub">Mes a mes con punto de recuperación</div></div>
+      </div>
+      <div class="pdf-opt" onclick="downloadPDF('todo')">
+        <span class="pdf-opt-icon">📋</span>
+        <div><div class="pdf-opt-label">Reporte Integral Completo</div><div class="pdf-opt-sub">Todo el proyecto en un solo documento</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== MODAL: NUEVO PROYECTO ==================== -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeNewProjectModal()"></div>
+<div class="modal" id="modal-new-project">
+  <div class="modal-header">
+    <div>
+      <div class="modal-tag">LUNA GI · NUEVO PROYECTO</div>
+      <div class="modal-title">Agregar Proyecto</div>
+    </div>
+    <button class="modal-close" onclick="closeNewProjectModal()">✕</button>
+  </div>
+  <div class="modal-body">
+
+    <!-- BLOQUE 1: IDENTIDAD -->
+    <div class="modal-section-title">① Identidad General</div>
+    <div class="modal-grid">
+      <div class="modal-field span2">
+        <label>Nombre del Proyecto <span class="req">*</span></label>
+        <input type="text" id="np-nombre" placeholder="ej. BINNIZA, ALTAMAR…">
+      </div>
+      <div class="modal-field">
+        <label>Tipo</label>
+        <select id="np-tipo">
+          <option>Fraccionamiento</option>
+          <option>Privada</option>
+          <option>Condominio</option>
+          <option>Comercial</option>
+          <option>Mixto</option>
+        </select>
+      </div>
+      <div class="modal-field">
+        <label>Régimen del Terreno</label>
+        <select id="np-regimen">
+          <option>Privado</option>
+          <option>Ejidal</option>
+          <option>Comunal</option>
+          <option>Mixto</option>
+        </select>
+      </div>
+      <div class="modal-field">
+        <label>Municipio</label>
+        <input type="text" id="np-municipio" placeholder="ej. Puerto Escondido">
+      </div>
+      <div class="modal-field">
+        <label>Estado</label>
+        <input type="text" id="np-estado" placeholder="ej. Oaxaca">
+      </div>
+    </div>
+
+    <!-- BLOQUE 2: INVENTARIO -->
+    <div class="modal-section-title">② Inventario y Superficie</div>
+    <div class="modal-grid">
+      <div class="modal-field">
+        <label>Total de Lotes <span class="req">*</span></label>
+        <input type="number" id="np-total-lotes" placeholder="46">
+      </div>
+      <div class="modal-field">
+        <label>Lotes ya Vendidos</label>
+        <input type="number" id="np-vendidos" placeholder="0">
+      </div>
+      <div class="modal-field">
+        <label>Superficie Total del Predio (m²)</label>
+        <input type="number" id="np-sup-total" placeholder="10387">
+      </div>
+      <div class="modal-field">
+        <label>Superficie Vendible (m²)</label>
+        <input type="number" id="np-sup-vendible" placeholder="10387">
+      </div>
+      <div class="modal-field">
+        <label>Número de Manzanas</label>
+        <input type="number" id="np-manzanas" placeholder="2" min="1">
+      </div>
+      <div class="modal-field">
+        <label>m² Promedio por Lote</label>
+        <input type="number" id="np-m2-promedio" placeholder="200">
+      </div>
+    </div>
+
+    <!-- BLOQUE 3: PRECIOS -->
+    <div class="modal-section-title">③ Escalera de Precios por m²</div>
+    <div class="modal-hint">Ingresa el precio de contado por m² para cada etapa. Los precios a plazos se calculan automáticamente (36m ×1.09 / 72m ×1.33).</div>
+    <div class="modal-grid four">
+      <div class="modal-field">
+        <label>Etapa 1 ($/m²)</label>
+        <div class="modal-prefix"><span>$</span><input type="number" id="np-e1-m2" placeholder="1950"></div>
+      </div>
+      <div class="modal-field">
+        <label>Etapa 2 ($/m²)</label>
+        <div class="modal-prefix"><span>$</span><input type="number" id="np-e2-m2" placeholder="2145"></div>
+      </div>
+      <div class="modal-field">
+        <label>Etapa 3 ($/m²)</label>
+        <div class="modal-prefix"><span>$</span><input type="number" id="np-e3-m2" placeholder="2360"></div>
+      </div>
+      <div class="modal-field">
+        <label>Etapa 4 ($/m²)</label>
+        <div class="modal-prefix"><span>$</span><input type="number" id="np-e4-m2" placeholder="2595"></div>
+      </div>
+    </div>
+    <div class="modal-grid four">
+      <div class="modal-field">
+        <label>Lotes Etapa 1</label>
+        <input type="number" id="np-e1-lotes" placeholder="5">
+      </div>
+      <div class="modal-field">
+        <label>Lotes Etapa 2</label>
+        <input type="number" id="np-e2-lotes" placeholder="13">
+      </div>
+      <div class="modal-field">
+        <label>Lotes Etapa 3</label>
+        <input type="number" id="np-e3-lotes" placeholder="10">
+      </div>
+      <div class="modal-field">
+        <label>Lotes Etapa 4</label>
+        <input type="number" id="np-e4-lotes" placeholder="13">
+      </div>
+    </div>
+
+    <!-- BLOQUE 4: FINANCIERO -->
+    <div class="modal-section-title">④ Metas Financieras</div>
+    <div class="modal-grid">
+      <div class="modal-field">
+        <label>Ingreso Bruto Estimado</label>
+        <div class="modal-prefix"><span>$</span><input type="number" id="np-ingreso" placeholder="20600000"></div>
+      </div>
+      <div class="modal-field">
+        <label>Gasto Total Estimado</label>
+        <div class="modal-prefix"><span>$</span><input type="number" id="np-gasto" placeholder="2121126"></div>
+      </div>
+      <div class="modal-field">
+        <label>Meta de Ventas 2026 (lotes)</label>
+        <input type="number" id="np-meta-lotes" placeholder="20">
+      </div>
+      <div class="modal-field">
+        <label>Meta Mensual Ideal (lotes)</label>
+        <input type="number" id="np-meta-mes" placeholder="3">
+      </div>
+    </div>
+
+    <!-- BLOQUE 5: POLÍTICA COMERCIAL -->
+    <div class="modal-section-title">⑤ Política Comercial Base</div>
+    <div class="modal-grid four">
+      <div class="modal-field">
+        <label>Enganche Mínimo (%)</label>
+        <input type="number" id="np-enganche" placeholder="10">
+      </div>
+      <div class="modal-field">
+        <label>Plazo Máximo (meses)</label>
+        <input type="number" id="np-plazo" placeholder="72">
+      </div>
+      <div class="modal-field">
+        <label>Comisión Interno (%)</label>
+        <input type="number" id="np-comi-int" placeholder="3">
+      </div>
+      <div class="modal-field">
+        <label>Comisión Externo (%)</label>
+        <input type="number" id="np-comi-ext" placeholder="5">
+      </div>
+    </div>
+
+    <!-- BLOQUE 6: NOTAS -->
+    <div class="modal-section-title">⑥ Notas Estratégicas</div>
+    <div class="modal-grid">
+      <div class="modal-field span2">
+        <label>Visión / Diferenciador / Posicionamiento</label>
+        <textarea id="np-notas" rows="3" placeholder="Describe la visión del proyecto, su posicionamiento de marca y diferenciador clave…"></textarea>
+      </div>
+    </div>
+
+  </div>
+  <div class="modal-footer">
+    <button class="btn-ghost" onclick="closeNewProjectModal()">Cancelar</button>
+    <button class="btn-primary" onclick="createProject()">✓ Crear Proyecto</button>
+  </div>
+</div>
+
+<script>
+// ==================== PROJECT SYSTEM ====================
+
+// Storage key
+const PROJECTS_KEY = 'lunaGI_projects';
+
+// In-memory project store (array of project objects)
+let projects = [];
+let activeProjectId = null;
+
+function getDefaultBaseData() {
+  return {
+    nombre: '', tipo: 'Fraccionamiento', municipio: '', estado: '', regimen: 'Privado',
+    totalLotes: '', vendidos: 0, supTotal: '', supVendible: '', ingreso: '', gasto: '',
+    metaLotes: '', metaMes: '', metaMin: 1, notas: '',
+    etapas: [
+      { nombre:'Etapa 1', lotes:5,  contado:390000, e36:Math.round(390000*1.09), e72:Math.round(390000*1.33), enganche:10, status:'Completada', incremento:0, tasa1:3, tasa2:8 },
+      { nombre:'Etapa 2', lotes:13, contado:390000, e36:Math.round(390000*1.09), e72:Math.round(390000*1.33), enganche:10, status:'Activa',     incremento:0, tasa1:3, tasa2:8 },
+      { nombre:'Etapa 3', lotes:10, contado:429000, e36:Math.round(429000*1.09), e72:Math.round(429000*1.33), enganche:10, status:'Próxima',    incremento:10,tasa1:3, tasa2:8 },
+      { nombre:'Etapa 4', lotes:13, contado:471900, e36:Math.round(471900*1.09), e72:Math.round(471900*1.33), enganche:10, status:'Futura',     incremento:10,tasa1:3, tasa2:8 },
+      { nombre:'Etapa 5', lotes:10, contado:519000, e36:Math.round(519000*1.09), e72:Math.round(519000*1.33), enganche:10, status:'Futura',     incremento:10,tasa1:3, tasa2:8 },
+    ],
+    costos: [
+      { cat:'A. ACTIVO BASE',    concepto:'Costo del terreno / valor reconocido',    total:0,       ejercido:0,      prioridad:'Crítico' },
+      { cat:'',                  concepto:'Honorarios legales de adquisición',         total:30000,   ejercido:30000,  prioridad:'Alto' },
+      { cat:'B. PREOPERATIVOS',  concepto:'Topografía y trazo',                        total:49000,   ejercido:49000,  prioridad:'Alto' },
+      { cat:'',                  concepto:'Permisos y trámites',                        total:442126,  ejercido:442126, prioridad:'Crítico' },
+      { cat:'',                  concepto:'Proyecto ejecutivo / diseño',                total:0,       ejercido:0,      prioridad:'Alto' },
+      { cat:'C. URBANIZACIÓN',   concepto:'Luz subterránea (registros, mangueras)',    total:1600000, ejercido:0,      prioridad:'Crítico' },
+      { cat:'',                  concepto:'Trámite CFE',                                total:0,       ejercido:0,      prioridad:'Alto' },
+      { cat:'',                  concepto:'Pozo y red hidráulica',                      total:0,       ejercido:0,      prioridad:'Crítico' },
+      { cat:'',                  concepto:'Trámite CONAGUA',                            total:0,       ejercido:0,      prioridad:'Medio' },
+      { cat:'',                  concepto:'Pavimentación',                              total:0,       ejercido:0,      prioridad:'Alto' },
+      { cat:'',                  concepto:'Banquetas y guarniciones',                   total:0,       ejercido:0,      prioridad:'Alto' },
+      { cat:'',                  concepto:'Alumbrado público',                          total:0,       ejercido:0,      prioridad:'Medio' },
+      { cat:'',                  concepto:'Fachada principal de acceso',                total:0,       ejercido:0,      prioridad:'Crítico' },
+      { cat:'',                  concepto:'Palapa y fogatero',                          total:0,       ejercido:0,      prioridad:'Bajo' },
+      { cat:'D. COMERCIALIZACIÓN',concepto:'Publicidad y marketing',                   total:0,       ejercido:0,      prioridad:'Alto' },
+      { cat:'',                  concepto:'Renders y audiovisual',                      total:0,       ejercido:0,      prioridad:'Medio' },
+      { cat:'',                  concepto:'Evento de apertura',                         total:0,       ejercido:0,      prioridad:'Alto' },
+      { cat:'E. VENTAS',         concepto:'Comisiones de venta',                        total:0,       ejercido:0,      prioridad:'Alto' },
+      { cat:'',                  concepto:'Gastos notariales',                          total:0,       ejercido:0,      prioridad:'Medio' },
+      { cat:'F. OPERACIÓN',      concepto:'Nómina y administración',                   total:0,       ejercido:0,      prioridad:'Alto' },
+      { cat:'',                  concepto:'Imprevistos / contingencia (5-10%)',         total:0,       ejercido:0,      prioridad:'Crítico' },
+    ],
+    permisos: [
+      { doc:'Acta de posesión a mi nombre', status:'listo' },
+      { doc:'Autorización de bienes comunales', status:'listo' },
+      { doc:'Plano autorizado y firmado por bienes comunales', status:'listo' },
+      { doc:'Cambio de uso de suelo municipal', status:'listo' },
+      { doc:'Permiso de lotificación con medidas y colindancias', status:'listo' },
+      { doc:'Plano de subdivisión autorizado municipio', status:'listo' },
+      { doc:'Constancia de no adeudo', status:'pendiente' },
+      { doc:'Alineamiento y uso de suelo', status:'tramite' },
+      { doc:'Permisos de obra mayor', status:'tramite' },
+      { doc:'Trámite ante CFE (energía eléctrica)', status:'no-iniciado' },
+      { doc:'Concesión CONAGUA para pozo de agua', status:'no-iniciado' },
+    ],
+    comercial: { enganche:10, plazoMax:72, dsctoContado:5, margen:3, apartado:5000, vgApartado:30, comiInt:3, comiExt:5, mora:2, asesoresInt:2, asesoresExt:3, marketing:15000 },
+    ventas: [],
+    lotes: [],
+  };
+}
+
+function saveProjects() {
+  try { localStorage.setItem(PROJECTS_KEY, JSON.stringify({ projects, activeProjectId })); } catch(e) {}
+}
+
+function loadProjects() {
+  try {
+    const raw = localStorage.getItem(PROJECTS_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      projects = parsed.projects || [];
+      activeProjectId = parsed.activeProjectId || null;
+    }
+  } catch(e) {}
+}
+
+function snapshotCurrentProject() {
+  // Capture all current UI state into a project snapshot
+  const snap = {};
+  snap.nombre = document.getElementById('g-nombre')?.value || '';
+  snap.tipo = document.getElementById('g-tipo')?.value || '';
+  snap.municipio = document.getElementById('g-municipio')?.value || '';
+  snap.estado = document.getElementById('g-estado')?.value || '';
+  snap.totalLotes = document.getElementById('g-total-lotes')?.value || '';
+  snap.vendidos = document.getElementById('g-vendidos')?.value || '';
+  snap.supTotal = document.getElementById('g-sup-total')?.value || '';
+  snap.supVendible = document.getElementById('g-sup-vendible')?.value || '';
+  snap.ingreso = String(document.getElementById('g-ingreso')?.value||'').replace(/,/g,'');
+  snap.gasto = String(document.getElementById('g-gasto')?.value||'').replace(/,/g,'');
+  snap.metaLotes = document.getElementById('g-meta-lotes')?.value || '';
+  snap.metaMes = document.getElementById('g-meta-mes')?.value || '';
+  snap.notas = document.getElementById('g-notas')?.value || '';
+  snap.comercial = {
+    enganche: document.getElementById('com-enganche')?.value || 10,
+    plazoMax: document.getElementById('com-plazo-max')?.value || 72,
+    dsctoContado: document.getElementById('com-dscto-contado')?.value || 5,
+    margen: document.getElementById('com-margen')?.value || 3,
+    apartado: document.getElementById('com-apartado')?.value || 5000,
+    vgApartado: document.getElementById('com-vg-apartado')?.value || 30,
+    comiInt: document.getElementById('com-comi-int')?.value || 3,
+    comiExt: document.getElementById('com-comi-ext')?.value || 5,
+    mora: document.getElementById('com-mora')?.value || 2,
+    asesoresInt: document.getElementById('com-asesores-int')?.value || 2,
+    asesoresExt: document.getElementById('com-asesores-ext')?.value || 3,
+    marketing: document.getElementById('com-marketing')?.value || 15000,
+  };
+
+  // Etapas
+  snap.etapas = [];
+  document.querySelectorAll('#etapas-container .etapa-card').forEach((card, i) => {
+    snap.etapas.push({
+      nombre: card.querySelector('input[type="text"]')?.value || '',
+      lotes: card.querySelector('.e-lotes')?.value || '',
+      enganche: card.querySelector('.e-enganche')?.value || 10,
+      incremento: card.querySelector('.e-incr')?.value || 0,
+      contado: card.querySelector('.e-contado')?.value || '',
+      e36: card.querySelector('.e-36m')?.value || '',
+      e72: card.querySelector('.e-72m')?.value || '',
+      tasa1: card.querySelector('.e-tasa1')?.value || 3,
+      tasa2: card.querySelector('.e-tasa2')?.value || 8,
+      status: card.querySelector('select')?.value || 'Futura',
+    });
+  });
+
+  // Costos
+  snap.costos = [];
+  document.querySelectorAll('#costos-body tr').forEach(row => {
+    const cat = row.querySelector('td[colspan]')?.textContent?.trim() || '';
+    const concepto = row.querySelector('input[type="text"]')?.value || '';
+    const total = row.querySelector('.c-total')?.value || 0;
+    const ejercido = row.querySelector('.c-ejercido')?.value || 0;
+    const prioridad = row.querySelector('.c-prioridad')?.value || '';
+    if (cat) snap.costos.push({ cat, concepto:'', total:0, ejercido:0, prioridad:'' });
+    else if (concepto) snap.costos.push({ cat:'', concepto, total: parseFloat(total)||0, ejercido: parseFloat(ejercido)||0, prioridad });
+  });
+
+  // Ventas
+  snap.ventas = [];
+  document.querySelectorAll('#ventas-body tr').forEach(row => {
+    const inputs = row.querySelectorAll('input');
+    const selects = row.querySelectorAll('select');
+    snap.ventas.push({
+      lote: inputs[0]?.value || '',
+      m2: inputs[1]?.value || '',
+      lista: inputs[2]?.value || '',
+      cierre: inputs[3]?.value || '',
+      fecha: inputs[4]?.value || '',
+      esquema: selects[0]?.value || '',
+      enganche: inputs[5]?.value || '',
+      mensual: inputs[6]?.value || '',
+      saldo: inputs[7]?.value || '',
+      pago: selects[1]?.value || '',
+      asesor: inputs[8]?.value || '',
+    });
+  });
+
+  // Lotes
+  snap.lotes = [];
+  document.querySelectorAll('#lotes-body tr').forEach(row => {
+    const inputs = row.querySelectorAll('input');
+    const selects = row.querySelectorAll('select');
+    snap.lotes.push({
+      lote: inputs[0]?.value || '',
+      manzana: inputs[1]?.value || '',
+      m2: inputs[2]?.value || '',
+      frente: inputs[3]?.value || '',
+      fondo: inputs[4]?.value || '',
+      ubic: inputs[5]?.value || '',
+      etapa: selects[0]?.value || '',
+      estatus: selects[1]?.value || 'disponible',
+      precio: inputs[6]?.value || '',
+    });
+  });
+
+  // Permisos
+  snap.permisos = [];
+  document.querySelectorAll('#permisos-container > div').forEach(div => {
+    snap.permisos.push({
+      doc: div.querySelector('input[type="text"]')?.value || '',
+      status: div.querySelector('select')?.value || 'pendiente',
+      fecha: div.querySelector('input[type="date"]')?.value || '',
+      obs: div.querySelectorAll('input[type="text"]')[1]?.value || '',
+    });
+  });
+
+  return snap;
+}
+
+function restoreProject(snap) {
+  // General
+  const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+  set('g-nombre', snap.nombre);
+  set('g-tipo', snap.tipo);
+  set('g-municipio', snap.municipio);
+  set('g-estado', snap.estado);
+  set('g-total-lotes', snap.totalLotes);
+  set('g-vendidos', snap.vendidos);
+  set('g-sup-total', snap.supTotal);
+  set('g-sup-vendible', snap.supVendible);
+  set('g-ingreso', snap.ingreso);
+  set('g-gasto', snap.gasto);
+  set('g-meta-lotes', snap.metaLotes);
+  set('g-meta-mes', snap.metaMes);
+  set('g-notas', snap.notas);
+  updateHeaderProject();
+
+  // Comercial
+  if (snap.comercial) {
+    const c = snap.comercial;
+    set('com-enganche', c.enganche); set('com-plazo-max', c.plazoMax);
+    set('com-dscto-contado', c.dsctoContado); set('com-margen', c.margen);
+    set('com-apartado', c.apartado); set('com-vg-apartado', c.vgApartado);
+    set('com-comi-int', c.comiInt); set('com-comi-ext', c.comiExt);
+    set('com-mora', c.mora); set('com-asesores-int', c.asesoresInt);
+    set('com-asesores-ext', c.asesoresExt); set('com-marketing', c.marketing);
+  }
+
+  // Etapas
+  document.getElementById('etapas-container').innerHTML = '';
+  etapaCount = 0;
+  (snap.etapas || getDefaultBaseData().etapas).forEach(e => addEtapa(e));
+  // update values after render
+  const cards = document.querySelectorAll('#etapas-container .etapa-card');
+  (snap.etapas || []).forEach((e, i) => {
+    const card = cards[i]; if (!card) return;
+    card.querySelector('input[type="text"]').value = e.nombre || '';
+    card.querySelector('.e-lotes').value = e.lotes || '';
+    card.querySelector('.e-enganche').value = e.enganche || 10;
+    card.querySelector('.e-incr').value = e.incremento || 0;
+    card.querySelector('.e-contado').value = e.contado || '';
+    card.querySelector('.e-36m').value = e.e36 || '';
+    card.querySelector('.e-72m').value = e.e72 || '';
+    card.querySelector('.e-tasa1').value = e.tasa1 || 3;
+    card.querySelector('.e-tasa2').value = e.tasa2 || 8;
+    const sel = card.querySelector('select'); if (sel) sel.value = e.status || 'Futura';
+  });
+
+  // Costos
+  document.getElementById('costos-body').innerHTML = '';
+  costoCount = 0;
+  (snap.costos || getDefaultBaseData().costos).forEach(c => addCostoRow(c));
+
+  // Ventas
+  document.getElementById('ventas-body').innerHTML = '';
+  ventaCount = 0;
+  (snap.ventas || []).forEach(v => addVenta(v));
+
+  // Lotes
+  document.getElementById('lotes-body').innerHTML = '';
+  loteCount = 0;
+  (snap.lotes || []).forEach(l => addLote(l));
+
+  // Permisos
+  document.getElementById('permisos-container').innerHTML = '';
+  permisoCount = 0;
+  (snap.permisos || getDefaultBaseData().permisos).forEach(p => addPermiso(p));
+}
+
+function switchToProject(id) {
+  // Save current project state
+  if (activeProjectId !== null) {
+    const idx = projects.findIndex(p => p.id === activeProjectId);
+    if (idx !== -1) projects[idx].data = snapshotCurrentProject();
+  }
+
+  const proj = projects.find(p => p.id === id);
+  if (!proj) return;
+  activeProjectId = id;
+  restoreProject(proj.data);
+  renderProjectList();
+  document.getElementById('project-selector-label').textContent = proj.name;
+  saveProjects();
+  closeProjectMenu();
+  showPage('general');
+}
+
+function createProject() {
+  const nombre = document.getElementById('np-nombre').value.trim();
+  if (!nombre) { document.getElementById('np-nombre').focus(); document.getElementById('np-nombre').style.border = '2px solid #c0392b'; return; }
+
+  // Build new project data from base defaults + form overrides
+  const base = getDefaultBaseData();
+
+  // Etapas from form
+  const e1m2 = parseFloat(document.getElementById('np-e1-m2').value) || 1950;
+  const e2m2 = parseFloat(document.getElementById('np-e2-m2').value) || 2145;
+  const e3m2 = parseFloat(document.getElementById('np-e3-m2').value) || 2360;
+  const e4m2 = parseFloat(document.getElementById('np-e4-m2').value) || 2595;
+  const m2avg = parseFloat(document.getElementById('np-m2-promedio').value) || 200;
+
+  const makeEtapa = (nombre, pxm2, lotes, status, incr) => ({
+    nombre, lotes,
+    contado: Math.round(pxm2 * m2avg),
+    e36: Math.round(pxm2 * m2avg * 1.09),
+    e72: Math.round(pxm2 * m2avg * 1.33),
+    enganche: parseFloat(document.getElementById('np-enganche').value) || 10,
+    status, incremento: incr, tasa1: 3, tasa2: 8,
+  });
+
+  const etapas = [
+    makeEtapa('Etapa 1', e1m2, parseInt(document.getElementById('np-e1-lotes').value)||5, 'Activa', 0),
+    makeEtapa('Etapa 2', e2m2, parseInt(document.getElementById('np-e2-lotes').value)||13, 'Próxima', Math.round(((e2m2/e1m2)-1)*100)),
+    makeEtapa('Etapa 3', e3m2, parseInt(document.getElementById('np-e3-lotes').value)||10, 'Futura', Math.round(((e3m2/e2m2)-1)*100)),
+    makeEtapa('Etapa 4', e4m2, parseInt(document.getElementById('np-e4-lotes').value)||13, 'Futura', Math.round(((e4m2/e3m2)-1)*100)),
+  ];
+
+  const newData = {
+    ...base,
+    nombre,
+    tipo: document.getElementById('np-tipo').value,
+    municipio: document.getElementById('np-municipio').value,
+    estado: document.getElementById('np-estado').value,
+    regimen: document.getElementById('np-regimen').value,
+    totalLotes: document.getElementById('np-total-lotes').value || '',
+    vendidos: document.getElementById('np-vendidos').value || 0,
+    supTotal: document.getElementById('np-sup-total').value || '',
+    supVendible: document.getElementById('np-sup-vendible').value || '',
+    ingreso: document.getElementById('np-ingreso').value || '',
+    gasto: document.getElementById('np-gasto').value || '',
+    metaLotes: document.getElementById('np-meta-lotes').value || '',
+    metaMes: document.getElementById('np-meta-mes').value || '',
+    notas: document.getElementById('np-notas').value,
+    etapas,
+    comercial: {
+      enganche: parseFloat(document.getElementById('np-enganche').value)||10,
+      plazoMax: parseFloat(document.getElementById('np-plazo').value)||72,
+      dsctoContado: 5, margen: 3, apartado: 5000, vgApartado: 30,
+      comiInt: parseFloat(document.getElementById('np-comi-int').value)||3,
+      comiExt: parseFloat(document.getElementById('np-comi-ext').value)||5,
+      mora: 2, asesoresInt: 2, asesoresExt: 3, marketing: 15000,
+    },
+  };
+
+  // Save current project before switching
+  if (activeProjectId !== null) {
+    const idx = projects.findIndex(p => p.id === activeProjectId);
+    if (idx !== -1) projects[idx].data = snapshotCurrentProject();
+  }
+
+  const newProj = { id: Date.now(), name: nombre, createdAt: new Date().toLocaleDateString('es-MX'), data: newData };
+  projects.push(newProj);
+  activeProjectId = newProj.id;
+  saveProjects();
+  restoreProject(newData);
+  renderProjectList();
+  document.getElementById('project-selector-label').textContent = nombre;
+  closeNewProjectModal();
+  showPage('general');
+}
+
+function deleteProject(id, e) {
+  e.stopPropagation();
+  const proj = projects.find(p => p.id === id);
+  if (!proj) return;
+  if (!confirm(`¿Eliminar el proyecto "${proj.name}"? Esta acción no se puede deshacer.`)) return;
+  projects = projects.filter(p => p.id !== id);
+  if (activeProjectId === id) {
+    if (projects.length > 0) {
+      activeProjectId = projects[0].id;
+      restoreProject(projects[0].data);
+      document.getElementById('project-selector-label').textContent = projects[0].name;
+    } else {
+      activeProjectId = null;
+      document.getElementById('project-selector-label').textContent = 'Sin proyecto';
+    }
+  }
+  saveProjects();
+  renderProjectList();
+}
+
+function renderProjectList() {
+  const list = document.getElementById('project-list');
+  list.innerHTML = '';
+  projects.forEach(proj => {
+    const div = document.createElement('div');
+    div.className = 'project-dropdown-item' + (proj.id === activeProjectId ? ' active' : '');
+    div.onclick = () => switchToProject(proj.id);
+    div.innerHTML = `
+      <div style="flex:1;min-width:0;">
+        <div style="font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${proj.name}</div>
+        <div style="font-size:10px;color:#8a9ab5;margin-top:2px;">${proj.createdAt || ''}</div>
+      </div>
+      ${proj.id === activeProjectId ? '<span style="color:#007bbb;font-size:16px;flex-shrink:0;">✓</span>' : ''}
+      <button onclick="deleteProject(${proj.id}, event)" style="background:none;border:none;color:#c0392b;cursor:pointer;font-size:14px;padding:2px 4px;flex-shrink:0;opacity:0.6;" title="Eliminar">🗑</button>
+    `;
+    list.appendChild(div);
+  });
+  if (projects.length === 0) {
+    list.innerHTML = '<div style="padding:12px 16px;font-size:12px;color:#8a9ab5;font-style:italic;">Sin proyectos guardados</div>';
+  }
+}
+
+// ---- MODAL OPEN/CLOSE ----
+function openNewProjectModal() {
+  closeProjectMenu();
+  // Pre-fill with base defaults
+  document.getElementById('np-nombre').value = '';
+  document.getElementById('np-nombre').style.border = '';
+  document.getElementById('np-tipo').value = 'Fraccionamiento';
+  document.getElementById('np-regimen').value = 'Privado';
+  document.getElementById('np-municipio').value = '';
+  document.getElementById('np-estado').value = 'Oaxaca';
+  document.getElementById('np-total-lotes').value = '';
+  document.getElementById('np-vendidos').value = '0';
+  document.getElementById('np-sup-total').value = '';
+  document.getElementById('np-sup-vendible').value = '';
+  document.getElementById('np-manzanas').value = '2';
+  document.getElementById('np-m2-promedio').value = '200';
+  document.getElementById('np-e1-m2').value = '1950';
+  document.getElementById('np-e2-m2').value = '2145';
+  document.getElementById('np-e3-m2').value = '2360';
+  document.getElementById('np-e4-m2').value = '2595';
+  document.getElementById('np-e1-lotes').value = '5';
+  document.getElementById('np-e2-lotes').value = '13';
+  document.getElementById('np-e3-lotes').value = '10';
+  document.getElementById('np-e4-lotes').value = '13';
+  document.getElementById('np-ingreso').value = '';
+  document.getElementById('np-gasto').value = '';
+  document.getElementById('np-meta-lotes').value = '20';
+  document.getElementById('np-meta-mes').value = '3';
+  document.getElementById('np-enganche').value = '10';
+  document.getElementById('np-plazo').value = '72';
+  document.getElementById('np-comi-int').value = '3';
+  document.getElementById('np-comi-ext').value = '5';
+  document.getElementById('np-notas').value = '';
+  document.getElementById('modal-overlay').style.display = 'block';
+  document.getElementById('modal-new-project').style.display = 'flex';
+}
+
+function closeNewProjectModal() {
+  document.getElementById('modal-overlay').style.display = 'none';
+  document.getElementById('modal-new-project').style.display = 'none';
+}
+
+function toggleProjectMenu(e) {
+  e.stopPropagation();
+  const dd = document.getElementById('project-dropdown');
+  dd.style.display = dd.style.display === 'block' ? 'none' : 'block';
+}
+
+function closeProjectMenu() {
+  document.getElementById('project-dropdown').style.display = 'none';
+}
+
+document.addEventListener('click', () => closeProjectMenu());
+
+// ---- INIT PROJECT SYSTEM ----
+function initProjectSystem() {
+  loadProjects();
+  // If no projects yet, create ALURA as the first project from current data
+  if (projects.length === 0) {
+    const aluraSnap = snapshotCurrentProject();
+    const alura = { id: Date.now(), name: 'ALURA', createdAt: new Date().toLocaleDateString('es-MX'), data: aluraSnap };
+    projects.push(alura);
+    activeProjectId = alura.id;
+    saveProjects();
+  } else if (activeProjectId) {
+    // Restore the active project
+    const proj = projects.find(p => p.id === activeProjectId);
+    if (proj) {
+      document.getElementById('project-selector-label').textContent = proj.name;
+    }
+  }
+  renderProjectList();
+}
+</script>
+</body>
+</html>
